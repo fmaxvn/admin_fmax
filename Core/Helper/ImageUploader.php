@@ -77,50 +77,85 @@ class ImageUploader {
             $width = (int)$width;
             $height = (int)$height;
             $resizedFile = "$uploadDir{$size}-$baseFileName";
-            self::convertToWebp($file['tmp_name'], $resizedFile, $extension, $width, $height);
+            self::cropAndConvertToWebp($file['tmp_name'], $resizedFile, $extension, $width, $height);
         }
 
         return $baseFileName;
     }
 
-    private static function convertToWebp(string $sourceFile, string $targetFile, string $extension, int $newWidth = null, int $newHeight = null): bool {
-        list($width, $height) = getimagesize($sourceFile);
-        
-        if (!$newWidth || !$newHeight) {
-            $newWidth = $width;
-            $newHeight = $height;
-        }
-
-        switch ($extension) {
-            case 'jpg':
-            case 'jpeg':
-                $image = imagecreatefromjpeg($sourceFile);
-                break;
-            case 'png':
-                $image = imagecreatefrompng($sourceFile);
-                break;
-            case 'gif':
-                $image = imagecreatefromgif($sourceFile);
-                break;
-            case 'webp':
-                $image = imagecreatefromwebp($sourceFile);
-                break;
-            default:
-                return false;
-        }
-
+    /**
+     * Chuyển đổi ảnh sang WebP mà không thay đổi kích thước
+     */
+    private static function convertToWebp(string $sourceFile, string $targetFile, string $extension): bool {
+        $image = self::createImageFromSource($sourceFile, $extension);
         if (!$image) {
             return false;
         }
 
-        $newImage = imagecreatetruecolor($newWidth, $newHeight);
-        imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-
-        $saveSuccess = imagewebp($newImage, $targetFile, 100);
-
+        $saveSuccess = imagewebp($image, $targetFile, 100);
         imagedestroy($image);
-        imagedestroy($newImage);
 
         return $saveSuccess;
+    }
+
+    /**
+     * Cắt ảnh theo đúng tỷ lệ mong muốn và chuyển đổi sang WebP
+     */
+    private static function cropAndConvertToWebp(string $sourceFile, string $targetFile, string $extension, int $cropWidth, int $cropHeight): bool {
+        list($width, $height) = getimagesize($sourceFile);
+
+        // Tính toán vị trí crop để lấy phần trung tâm của ảnh
+        $srcRatio = $width / $height;
+        $targetRatio = $cropWidth / $cropHeight;
+
+        if ($srcRatio > $targetRatio) {
+            // Ảnh gốc rộng hơn: Cắt hai bên
+            $newWidth = (int) ($height * $targetRatio);
+            $newHeight = $height;
+            $srcX = (int) (($width - $newWidth) / 2);
+            $srcY = 0;
+        } else {
+            // Ảnh gốc cao hơn: Cắt trên và dưới
+            $newWidth = $width;
+            $newHeight = (int) ($width / $targetRatio);
+            $srcX = 0;
+            $srcY = (int) (($height - $newHeight) / 2);
+        }
+
+        $image = self::createImageFromSource($sourceFile, $extension);
+        if (!$image) {
+            return false;
+        }
+
+        // Cắt ảnh
+        $croppedImage = imagecreatetruecolor($cropWidth, $cropHeight);
+        imagecopyresampled($croppedImage, $image, 0, 0, $srcX, $srcY, $cropWidth, $cropHeight, $newWidth, $newHeight);
+
+        // Lưu ảnh dưới định dạng WebP
+        $saveSuccess = imagewebp($croppedImage, $targetFile, 100);
+
+        imagedestroy($image);
+        imagedestroy($croppedImage);
+
+        return $saveSuccess;
+    }
+
+    /**
+     * Tạo ảnh từ file nguồn dựa trên phần mở rộng
+     */
+    private static function createImageFromSource(string $sourceFile, string $extension) {
+        switch ($extension) {
+            case 'jpg':
+            case 'jpeg':
+                return imagecreatefromjpeg($sourceFile);
+            case 'png':
+                return imagecreatefrompng($sourceFile);
+            case 'gif':
+                return imagecreatefromgif($sourceFile);
+            case 'webp':
+                return imagecreatefromwebp($sourceFile);
+            default:
+                return false;
+        }
     }
 }
