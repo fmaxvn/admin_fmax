@@ -49,7 +49,7 @@ class UserController extends ViewHelper{
             'order_by' => ["datecreate $sort"],
             'limit' => $limit,
             'offset' => $offset,
-            'columns' => 'id, fullname, email, mobile, datecreate, online',
+            'columns' => 'id, fullname, email, mobile, datecreate, online, avatar',
         ];
         
         // ✅ **Truy vấn danh sách thành viên với các cột cần thiết**
@@ -59,6 +59,70 @@ class UserController extends ViewHelper{
 //         $view->is_ajax = true;
         return $this->getLayout($data);
     }
+    
+    
+    public function edit() {
+        $db = new DBHandler($this->table);
+        $view = new ViewHelper();
+        $params = $this->getParams();
+        
+        $userId = $params['id'];
+        // Lấy thông tin người dùng từ database
+        $user = $db->getOne(['id' => $userId]);
+        
+        if (!$user) {
+            return $view->getLayout(['error' => "Người dùng không tồn tại"]);
+        }
+        
+        // ✅ Nếu form được submit (tức là phương thức POST)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Lấy toàn bộ dữ liệu từ form
+            $fields = [
+                'fullname', 'email', 'mobile', 'address', 'notes',
+                'facebook', 'youtube', 'twitter', 'instagram', 'desc', 'id_usergroup', 'sex', 'is_team'
+            ];
+            $updateData = [];
+            
+            foreach ($fields as $field) {
+                if (!empty($_POST[$field])) {
+                    $updateData[$field] = $_POST[$field];
+                }
+            }
+            
+            // ✅ Upload avatar nếu có
+            if (!empty($_FILES['avatar']['name'])) {
+                $uploadedAvatar = ImageUploader::upload($_FILES['avatar'], ["50x50","100x100"]);
+                if ($uploadedAvatar) {
+                    $updateData['avatar'] = $uploadedAvatar;
+                }
+            }
+            
+            // ✅ Cập nhật dữ liệu vào database
+            if (!empty($updateData)) {
+                $success = $db->update($updateData, ['id' => $userId]);
+                if ($success) {
+                    $user = array_merge($user, $updateData); // Cập nhật dữ liệu mới vào biến user
+                    return $view->getLayout([
+                        'user' => $user,
+                        'success' => "Cập nhật người dùng thành công"
+                    ]);
+                }
+            }
+            
+            return $view->getLayout([
+                'user' => $user,
+                'error' => "Không có dữ liệu nào được cập nhật"
+            ]);
+        }
+        
+        // ✅ Nếu chỉ là GET request, hiển thị form chỉnh sửa
+        return $view->getLayout([
+            'user' => $user
+        ]);
+    }
+    
+    
+    
     
     /**
      * ✅ Hiển thị trang Profile
