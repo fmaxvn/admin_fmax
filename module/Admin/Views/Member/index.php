@@ -52,6 +52,7 @@
                         </td>
                         <td>
                             <div class="btn-group">
+                                <a href="/admin/member/change_password/id/<?= $user['id'] ?>" class="btn btn-sm btn-success me-1">Đổi password</a>
                                 <a href="/admin/member/edit/id/<?= $user['id'] ?>" class="btn btn-sm btn-primary me-1">Sửa</a>
                                 <button type="button" class="btn btn-sm btn-danger delete-user" data-id="<?= $user['id'] ?>">Xóa</button>
                             </div>

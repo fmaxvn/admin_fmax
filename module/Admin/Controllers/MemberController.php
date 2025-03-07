@@ -37,7 +37,7 @@ class MemberController extends ViewHelper
         // ✅ **Xây dựng điều kiện truy vấn**
         $conditions = [];
         if (!empty($search)) {
-            $conditions['username'] = ['LIKE', $search];
+            $conditions['username'] = ['LIKE', "%{$search}%"];
         }
 
         // ✅ **Tùy chọn sắp xếp**
@@ -250,53 +250,6 @@ class MemberController extends ViewHelper
         return $view->getLayout(['member' => $member]);
     }
 
-    /**
-     * ✅ Hiển thị trang Profile
-     */
-    public function profile()
-    {
-        $view = new ViewHelper();
-        $db = new DBHandler($this->table);
-
-        // Lấy ID user từ session
-        $userId = $_SESSION['user_id'];
-        $data['user'] = $db->getOne(['id' => $userId]);
-
-        // Nếu user không tồn tại
-        if (!$data['user']) {
-            $data['error'] = "Tài khoản không tồn tại.";
-            return $view->getLayout($data);
-        }
-
-        // ✅ Xử lý cập nhật thông tin nếu có POST request
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $updateData = $_POST; // ✅ Lấy toàn bộ dữ liệu từ form
-
-            // ✅ Upload avatar nếu có
-            if (!empty($_FILES['avatar']['name'])) {
-                $upload = new ImageUploader();
-                $avatarName = $upload->upload($_FILES['avatar'], array("100x100")); // Hàm upload ảnh
-                if ($avatarName) {
-                    $updateData['avatar'] = $avatarName;
-                } else {
-                    $data['error'] = "Lỗi khi upload ảnh.";
-                    return $view->getLayout($data);
-                }
-            }
-
-            // ✅ Thực hiện cập nhật dữ liệu nếu có thay đổi
-            if (!empty($updateData)) {
-                if ($db->update($updateData, ['id' => $userId])) {
-                    $data['success'] = "Cập nhật thông tin thành công.";
-                    $data['user'] = $db->getOne(['id' => $userId]); // Lấy lại thông tin mới
-                } else {
-                    $data['error'] = "Không có thay đổi hoặc cập nhật thất bại.";
-                }
-            }
-        }
-
-        return $view->getLayout($data);
-    }
 
     /**
      * Hiển thị trang đổi mật khẩu và xử lý đổi mật khẩu khi submit
@@ -305,44 +258,49 @@ class MemberController extends ViewHelper
     {
         $view = new ViewHelper();
         $data = array();
+        $params = $this->getParams();
+
+        $db = new DBHandler($this->table, 'tech_global_27_08_2024');
+        $data['memberId'] = $memberId = $params['id'];
+
 
         // Nếu là phương thức POST, xử lý đổi mật khẩu
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $db = new DBHandler($this->table);
 
-            $userId = $_SESSION['user_id'] ?? null;
-            $oldPassword = $_POST['old_password'] ?? '';
+            // $oldPassword = $_POST['old_password'] ?? '';
             $newPassword = $_POST['new_password'] ?? '';
             $confirmPassword = $_POST['confirm_password'] ?? '';
-
-            // Kiểm tra user tồn tại
-            $user = $db->getOne(['id' => $userId]);
-
-            if (!$user) {
-                $data['error'] = "Người dùng không tồn tại.";
-                return $view->getLayout($data);
-            }
-
-            // Kiểm tra mật khẩu cũ với `password_verify()`
-            if (!password_verify($oldPassword, $user['password'])) {
-                $data['error'] = "Mật khẩu cũ không đúng.";
-                return $view->getLayout($data);
-            }
-
-            // Kiểm tra mật khẩu mới hợp lệ
-            if (strlen($newPassword) < 6) {
-                $data['error'] = "Mật khẩu mới phải có ít nhất 6 ký tự.";
-                return $view->getLayout($data);
-            }
 
             if ($newPassword !== $confirmPassword) {
                 $data['error'] = "Mật khẩu xác nhận không khớp.";
                 return $view->getLayout($data);
             }
 
+            $validator = new Validator();
+            $validator->validate($_POST, [
+                'new_password' => ['nullable', 'password'],
+            ]);
+
+            // Kiểm tra nếu có lỗi
+            if ($validator->fails()) {
+                $data['errors'] = $validator->errors(); // ✅ Truyền danh sách lỗi ra view
+                $data['old'] = $_POST; // ✅ Giữ lại dữ liệu đã nhập
+
+                return $view->getLayout($data);
+            }
+
+            // Kiểm tra user tồn tại
+            $member = $db->getOne(['id' => $memberId]);
+
+
+            if (!$member) {
+                $data['error'] = "Người dùng không tồn tại.";
+                return $view->getLayout($data);
+            }
+
             // Cập nhật mật khẩu mới bằng `password_hash()`
             $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            $updateStatus = $db->update(['password' => $hashedNewPassword], ['id' => $userId]);
+            $updateStatus = $db->update(['password' => $hashedNewPassword], ['id' => $memberId]);
 
             if ($updateStatus) {
                 $data['success'] = "Đổi mật khẩu thành công.";

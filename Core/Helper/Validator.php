@@ -2,9 +2,10 @@
 
 namespace Core\Helper;
 
-class Validator {
+class Validator
+{
     private array $errors = [];
-    
+
     /**
      * Kiểm tra dữ liệu theo rules
      *
@@ -20,10 +21,11 @@ class Validator {
      * if ($validator->fails()) print_r($validator->errors());
      * ```
      */
-    public function validate(array $data, array $rules): void {
+    public function validate(array $data, array $rules): void
+    {
         foreach ($rules as $field => $fieldRules) {
             $value = $data[$field] ?? null;
-            
+
             foreach ($fieldRules as $rule) {
                 if (str_contains($rule, ':')) {
                     [$ruleName, $ruleValue] = explode(':', $rule);
@@ -34,7 +36,7 @@ class Validator {
             }
         }
     }
-    
+
     /**
      * Áp dụng từng rule lên dữ liệu
      *
@@ -43,46 +45,52 @@ class Validator {
      * @param string $rule Tên rule (VD: 'required', 'min', 'email')
      * @param mixed|null $ruleValue Giá trị rule (VD: min:3 -> ruleValue = 3)
      */
-    private function applyRule(string $field, $value, string $rule, $ruleValue = null): void {
+    private function applyRule(string $field, $value, string $rule, $ruleValue = null): void
+    {
         switch ($rule) {
             case 'required': // Trường không được để trống
                 if (empty($value) && $value !== '0') {
                     $this->errors[$field][] = "Trường $field là bắt buộc.";
                 }
                 break;
-                
+
             case 'email': // Kiểm tra email hợp lệ
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     $this->errors[$field][] = "Trường $field phải là email hợp lệ.";
                 }
                 break;
-                
+
             case 'numeric': // Kiểm tra số
                 if (!is_numeric($value)) {
                     $this->errors[$field][] = "Trường $field phải là số.";
                 }
                 break;
-                
+
             case 'min': // Kiểm tra độ dài tối thiểu
                 if (strlen($value) < (int)$ruleValue) {
                     $this->errors[$field][] = "Trường $field phải có ít nhất $ruleValue ký tự.";
                 }
                 break;
-                
+
             case 'max': // Kiểm tra độ dài tối đa
                 if (strlen($value) > (int)$ruleValue) {
                     $this->errors[$field][] = "Trường $field không được vượt quá $ruleValue ký tự.";
                 }
                 break;
-                
+
             case 'regex': // Kiểm tra regex (VD: số điện thoại, username)
                 if (!preg_match($ruleValue, $value)) {
                     $this->errors[$field][] = "Trường $field không đúng định dạng.";
                 }
                 break;
+            case 'password': // ✅ Kiểm tra độ mạnh của mật khẩu
+                if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+<>?])[A-Za-z\d!@#$%^&*()_+<>?]{8,16}$/', $value)) {
+                    $this->errors[$field][] = "Mật khẩu phải từ 8-16 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt (!@#$%^&*()_+<>?).";
+                }
+                break;
         }
     }
-    
+
     /**
      * Kiểm tra nếu có lỗi
      *
@@ -91,10 +99,11 @@ class Validator {
      * if ($validator->fails()) { print_r($validator->errors()); }
      * ```
      */
-    public function fails(): bool {
+    public function fails(): bool
+    {
         return !empty($this->errors);
     }
-    
+
     /**
      * Lấy danh sách lỗi
      *
@@ -105,7 +114,8 @@ class Validator {
      * print_r($validator->errors());
      * ```
      */
-    public function errors(): array {
+    public function errors(): array
+    {
         return $this->errors;
     }
 }
