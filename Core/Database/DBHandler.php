@@ -82,7 +82,7 @@ class DBHandler {
                     
                     'LIKE' => !empty($value[1]) &&
                     $whereClauses[] = "$safeKey LIKE :$paramKey" &&
-                    $params[$paramKey] = "%{$value[1]}%",
+                    $params[$paramKey] = "{$value[1]}",
                     
                     'IN' => (!empty($value[1]) && is_array($value[1])) &&
                     $whereClauses[] = "$safeKey IN (" . implode(", ", array_map(fn($i) => ":{$paramKey}_{$i}", array_keys($value[1]))) . ")" &&
