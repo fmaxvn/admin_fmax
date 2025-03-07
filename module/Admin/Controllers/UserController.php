@@ -6,6 +6,7 @@ use Core\Database\DBHandler; // ✅ Load module database
 
 use Core\Helper\ImageUploader;
 use Core\Helper\ViewHelper;
+use Core\Helper\Validator;
 
 class UserController extends ViewHelper{
     
@@ -60,6 +61,108 @@ class UserController extends ViewHelper{
         return $this->getLayout($data);
     }
     
+    /**
+     * Xóa user
+     */
+    public function delete() {
+        // Chỉ chấp nhận POST request để tránh CSRF
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 403 Forbidden');
+            echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+            exit;
+        }
+        
+        $userId = $_POST['id'] ?? 0;
+        
+        // Không cho phép xóa chính mình
+        if ($userId == $_SESSION['user_id']) {
+            echo json_encode(['status' => 'error', 'message' => 'Không thể xóa tài khoản đang đăng nhập']);
+            exit;
+        }
+        
+        $db = new DBHandler($this->table);
+        
+        // Lấy thông tin user để xóa avatar nếu có
+        $user = $db->getOne(['id' => $userId]);
+        
+        if ($user && $db->delete(['id' => $userId])) {
+            // Xóa avatar nếu có
+            if (!empty($user['avatar'])) {
+                ImageUploader::removeImage($user['avatar']);
+            }
+            
+            echo json_encode(['status' => 'success', 'message' => 'Xóa user thành công']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi xóa user']);
+        }
+        exit;
+    }
+    
+    /**
+     * Hiển thị form thêm mới user và xử lý thêm user
+     */
+    public function add() {
+        $view = new ViewHelper();
+        $data = [];
+        
+        // Xử lý form submit
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $db = new DBHandler($this->table);
+            
+            // Validate dữ liệu
+            $validator = new Validator();
+            $validator->validate($_POST, [
+                'username' => ['required', 'min:3'],
+                'password' => ['required', 'min:6'],
+                'fullname' => ['required'],
+                'email' => ['required', 'email']
+            ]);
+            
+            if ($validator->fails()) {
+                $data['errors'] = $validator->errors();
+                $data['old'] = $_POST; // Giữ lại dữ liệu đã nhập
+            } else {
+                // Xử lý avatar nếu có
+                if (!empty($_FILES['avatar']['name'])) {
+                    $upload = new ImageUploader();
+                    $avatarName = $upload->upload($_FILES['avatar'], array("50x50", "100x100"));
+                    if ($avatarName) {
+                        $_POST['avatar'] = $avatarName;
+                    }
+                }
+                
+                // Mã hóa mật khẩu với password_hash (an toàn hơn md5)
+                $_POST['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $_POST['token'] = bin2hex(random_bytes(16)); // Token ngẫu nhiên
+                $_POST['datecreate'] = date('Y-m-d H:i:s');
+                
+                // Bỏ trường confirm_password nếu có
+                if (isset($_POST['confirm_password'])) {
+                    unset($_POST['confirm_password']);
+                }
+                
+                // Bỏ trường avatar_file nếu có
+                if (isset($_POST['avatar_file'])) {
+                    unset($_POST['avatar_file']);
+                }
+                
+                // Bỏ trường cropped_image nếu có
+                if (isset($_POST['cropped_image'])) {
+                    unset($_POST['cropped_image']);
+                }
+                
+                // Insert trực tiếp dữ liệu POST vào database
+                if ($db->insert($_POST)) {
+                    $data['success'] = "Thêm mới user thành công!";
+                } else {
+                    $data['error'] = "Có lỗi xảy ra khi thêm mới user. Vui lòng thử lại.";
+                    $data['old'] = $_POST; // Giữ lại dữ liệu đã nhập
+                }
+            }
+        }
+        
+        return $view->getLayout($data);
+    }
     
     public function edit() {
         $db = new DBHandler($this->table);
@@ -121,9 +224,6 @@ class UserController extends ViewHelper{
         ]);
     }
     
-    
-    
-    
     /**
      * ✅ Hiển thị trang Profile
      */
@@ -175,7 +275,6 @@ class UserController extends ViewHelper{
      * Hiển thị trang đổi mật khẩu và xử lý đổi mật khẩu khi submit
      */
     public function change_password() {
-        
         $view = new ViewHelper();
         $data = array();
         
@@ -196,14 +295,13 @@ class UserController extends ViewHelper{
                 return $view->getLayout($data);
             }
             
-            // Kiểm tra mật khẩu cũ
-            $hashedOldPassword = md5($oldPassword . TOKEN);
-            if ($hashedOldPassword !== $user['password']) {
+            // Kiểm tra mật khẩu cũ với `password_verify()`
+            if (!password_verify($oldPassword, $user['password'])) {
                 $data['error'] = "Mật khẩu cũ không đúng.";
                 return $view->getLayout($data);
             }
             
-            // Kiểm tra mật khẩu mới
+            // Kiểm tra mật khẩu mới hợp lệ
             if (strlen($newPassword) < 6) {
                 $data['error'] = "Mật khẩu mới phải có ít nhất 6 ký tự.";
                 return $view->getLayout($data);
@@ -214,8 +312,8 @@ class UserController extends ViewHelper{
                 return $view->getLayout($data);
             }
             
-            // Cập nhật mật khẩu mới
-            $hashedNewPassword = md5($newPassword . $user['token']);
+            // Cập nhật mật khẩu mới bằng `password_hash()`
+            $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $updateStatus = $db->update(['password' => $hashedNewPassword], ['id' => $userId]);
             
             if ($updateStatus) {

@@ -28,8 +28,7 @@ class AuthController {
             $options["columns"] = 'id, username, password';
             $data["user"] = $db->getOne($conditions, $options);
             if (!empty($data["user"])) {
-                $hashedPassword = md5($password . TOKEN);
-                if ($hashedPassword === $data["user"]['password']) {
+                if (password_verify($password, $data["user"]['password'])) {
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['user_id'] = $data["user"]['id'];
                     header("Location: /admin/dashboard/index");
@@ -50,7 +49,7 @@ class AuthController {
     public function logout() {
         session_start();
         session_destroy();
-        header("Location: /admin/Auth/login");
+        header("Location: /admin/auth/login");
         exit;
     }
 }
