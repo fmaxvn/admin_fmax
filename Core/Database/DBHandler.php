@@ -8,6 +8,21 @@ class DBHandler {
     private ?PDO $connection = null;
     private string $table;
 
+    /**
+     * Khởi tạo class DBHandler với tên bảng cần thao tác.
+     *
+     * @param string $table Tên bảng trong database.
+     *
+     * @example
+     * ```php
+     * $db = new DBHandler('users');
+     * ```
+     */
+    
+    public function __construct(string $table, ?string $database = null) {
+        $this->connection = DB::connect($database); // Kết nối database cụ thể
+        $this->table = preg_replace('/[^a-zA-Z0-9_]/', '', $table); // Bảo mật tên bảng
+    }
     
     /**
      * ✅ Chạy trực tiếp SQL query với tham số và trả về kết quả
@@ -35,78 +50,66 @@ class DBHandler {
         }
     }
     
-    
-    /**
-     * Khởi tạo class DBHandler với tên bảng cần thao tác.
-     *
-     * @param string $table Tên bảng trong database.
-     *
-     * @example
-     * ```php
-     * $db = new DBHandler('users');
-     * ```
-     */
-    
-    public function __construct(string $table, ?string $database = null) {
-        $this->connection = DB::connect($database); // Kết nối database cụ thể
-        $this->table = preg_replace('/[^a-zA-Z0-9_]/', '', $table); // Bảo mật tên bảng
-    }
-    
-    
-    
     /**
      * Xây dựng điều kiện SQL từ mảng `$conditions`
      *
-     * @param array $conditions Mảng điều kiện (VD: ['status' => 'active'])
+     * @param array $conditions Mảng điều kiện (VD: ['users.status' => 'active', 'age' => ['BETWEEN', 18, 30]])
      * @return array Mảng chứa 'sql' => câu WHERE và 'params' => tham số
      */
     private function buildConditions(array $conditions): array {
         $whereClauses = [];
         $params = [];
         
-        if (!empty($conditions)) {
-            foreach ($conditions as $key => $value) {
-                $safeKey = preg_replace('/[^a-zA-Z0-9_]/', '', $key);
-                
-                if (is_array($value) && isset($value[0])) {
-                    switch ($value[0]) {
-                        case 'BETWEEN':
-                            if (isset($value[1]) && isset($value[2])) {
-                                $whereClauses[] = "$safeKey BETWEEN :{$safeKey}_1 AND :{$safeKey}_2";
-                                $params["{$safeKey}_1"] = $value[1];
-                                $params["{$safeKey}_2"] = $value[2];
-                            }
-                            break;
-                            
-                        case 'LIKE':
-                            if (!empty($value[1])) {
-                                $whereClauses[] = "$safeKey LIKE :$safeKey";
-                                $params[$safeKey] = "%" . $value[1] . "%";
-                            }
-                            break;
-                            
-                        case 'IN':
-                            if (!empty($value[1]) && is_array($value[1])) {
-                                $placeholders = implode(", ", array_map(fn($i) => ":{$safeKey}_{$i}", array_keys($value[1])));
-                                $whereClauses[] = "$safeKey IN ($placeholders)";
-                                foreach ($value[1] as $index => $val) {
-                                    $params["{$safeKey}_{$index}"] = $val;
-                                }
-                            }
-                            break;
-                    }
-                } elseif (!empty($value) || is_numeric($value)) {
-                    $whereClauses[] = "$safeKey = :$safeKey";
-                    $params[$safeKey] = $value;
-                }
+        if (empty($conditions)) {
+            return ['sql' => '', 'params' => []];
+        }
+        
+        foreach ($conditions as $key => $value) {
+            // ✅ Nếu không có tên bảng, tự động thêm bảng chính
+            if (!str_contains($key, '.')) {
+                $key = "{$this->table}.$key";
+            }
+            
+            $safeKey = $key;
+            $paramKey = preg_replace('/[^a-zA-Z0-9_]/', '_', $key); // Chuẩn hóa paramKey
+            
+            if (is_array($value) && isset($value[0])) {
+                match ($value[0]) {
+                    'BETWEEN' => isset($value[1], $value[2]) &&
+                    $whereClauses[] = "$safeKey BETWEEN :{$paramKey}_1 AND :{$paramKey}_2" &&
+                    $params["{$paramKey}_1"] = $value[1] &&
+                    $params["{$paramKey}_2"] = $value[2],
+                    
+                    'LIKE' => !empty($value[1]) &&
+                    $whereClauses[] = "$safeKey LIKE :$paramKey" &&
+                    $params[$paramKey] = "%{$value[1]}%",
+                    
+                    'IN' => (!empty($value[1]) && is_array($value[1])) &&
+                    $whereClauses[] = "$safeKey IN (" . implode(", ", array_map(fn($i) => ":{$paramKey}_{$i}", array_keys($value[1]))) . ")" &&
+                    array_walk($value[1], fn($val, $index) => $params["{$paramKey}_{$index}"] = $val),
+                    
+                    '!=' || '<>' => $whereClauses[] = "$safeKey != :$paramKey" && $params[$paramKey] = $value[1],
+                    
+                    '>' || '>=' || '<' || '<=' => $whereClauses[] = "$safeKey $value[0] :$paramKey" && $params[$paramKey] = $value[1],
+                    
+                    'IS NULL' => $whereClauses[] = "$safeKey IS NULL",
+                    
+                    'IS NOT NULL' => $whereClauses[] = "$safeKey IS NOT NULL"
+                };
+            } elseif ($value === null) {
+                $whereClauses[] = "$safeKey IS NULL";
+            } else {
+                $whereClauses[] = "$safeKey = :$paramKey";
+                $params[$paramKey] = $value;
             }
         }
         
-        // ✅ **Ghép điều kiện WHERE nếu có**
-        $sql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
-        
-        return ['sql' => trim($sql), 'params' => $params];
+        return [
+            'sql' => !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "",
+            'params' => $params
+        ];
     }
+    
     
     /**
      * Đếm số lượng bản ghi trong bảng với điều kiện giống như getList()
@@ -127,48 +130,94 @@ class DBHandler {
     
 
     /**
-     * Lấy danh sách bản ghi theo điều kiện.
+     * Lấy danh sách bản ghi theo điều kiện, có hỗ trợ JOIN.
      *
      * @param array $conditions Điều kiện lọc dữ liệu (WHERE, LIKE, BETWEEN, IN).
-     * @param array $options Các tùy chọn bổ sung (order_by, group_by, limit).
+     * @param array $options Các tùy chọn bổ sung (columns, order_by, group_by, limit, joins).
      * @return array Mảng chứa danh sách bản ghi.
      *
      * @example
+     * // Lấy danh sách user có status 'active' và tuổi từ 18 đến 30, sắp xếp theo tên
      * ```php
-     * $users = $db->getList(['age' => ['BETWEEN', 18, 30]], ['order_by' => ['name ASC']]);
+     * $users = $db->getList(
+     *     ['users.status' => 'active', 'age' => ['BETWEEN', 18, 30]],
+     *     ['order_by' => ['users.name ASC'], 'limit' => 10]
+     * );
+     * print_r($users);
+     * ```
+     *
+     * @example
+     * // Lấy danh sách user có role từ bảng 'roles' bằng INNER JOIN
+     * ```php
+     * $users = $db->getList(
+     *     ['users.status' => 'active'],
+     *     [
+     *         'columns' => 'users.*, roles.name as role_name',
+     *         'joins' => [
+     *             ['INNER JOIN', 'roles', 'roles.id = users.role_id']
+     *         ],
+     *         'order_by' => ['users.created_at DESC']
+     *     ]
+     * );
      * print_r($users);
      * ```
      */
+    
+    
     public function getList(array $conditions = [], array $options = []): array {
-        // ✅ **Chọn cột cần lấy dữ liệu**
-        $columns = "*";
-        if(!empty($options["columns"])){
-            $columns = $options["columns"];
+        $columns = !empty($options["columns"]) ? $options["columns"] : "{$this->table}.*"; // ✅ Mặc định lấy tất cả cột của bảng chính
+        
+        $sql = "SELECT $columns FROM {$this->table}";
+        
+        // ✅ **Thêm các JOIN nếu có**
+        if (!empty($options['joins']) && is_array($options['joins'])) {
+            foreach ($options['joins'] as $join) {
+                if (isset($join[0], $join[1], $join[2])) { // Kiểm tra đủ phần tử
+                    $joinType = strtoupper($join[0]); // Chuyển thành INNER JOIN, LEFT JOIN
+                    $joinTable = $join[1];
+                    $joinCondition = $join[2];
+                    
+                    // ✅ Kiểm tra xem điều kiện có thiếu table hay không
+                    if (!str_contains($joinCondition, ".")) {
+                        throw new Exception("Lỗi JOIN: Điều kiện '$joinCondition' phải chứa tên bảng.");
+                    }
+                    
+                    $sql .= " $joinType $joinTable ON $joinCondition";
+                }
+            }
         }
         
+        // Xây dựng WHERE
         $queryData = $this->buildConditions($conditions);
+        $sql .= " " . $queryData["sql"];
         
-        $sql = "SELECT $columns FROM {$this->table} " . $queryData["sql"];
-        
+        // ✅ **Thêm GROUP BY nếu có**
         if (!empty($options['group_by'])) {
-            $sql .= " GROUP BY " . implode(", ", $options['group_by']);
+            $groupByCols = array_map(fn($col) => (str_contains($col, '.') ? $col : "{$this->table}.$col"), $options['group_by']);
+            $sql .= " GROUP BY " . implode(", ", $groupByCols);
         }
         
+        // ✅ **Thêm ORDER BY nếu có**
         if (!empty($options['order_by'])) {
-            $sql .= " ORDER BY " . implode(", ", $options['order_by']);
+            $orderByCols = array_map(fn($col) => (str_contains($col, '.') ? $col : "{$this->table}.$col"), $options['order_by']);
+            $sql .= " ORDER BY " . implode(", ", $orderByCols);
         }
         
-        if (!empty($options['limit'])) {
+        // ✅ **Thêm LIMIT và OFFSET nếu có**
+        if (!empty($options['limit']) && is_numeric($options['limit'])) {
             $sql .= " LIMIT " . (int) $options['limit'];
         }
         
-        if (!empty($options['offset'])) {
+        if (!empty($options['offset']) && is_numeric($options['offset'])) {
             $sql .= " OFFSET " . (int) $options['offset'];
         }
+        
+        // ✅ **Chuẩn bị và thực thi câu truy vấn**
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($queryData['params']);
         return $stmt->fetchAll();
     }
+    
     
     /**
      * Lấy một bản ghi duy nhất theo điều kiện.
