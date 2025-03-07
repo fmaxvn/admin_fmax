@@ -152,6 +152,7 @@ class ViewHelper {
         $controller = $param['controller'];
         $method     = $param['method'];
         $param_routuer      = $param['params'];
+        
         return [
                 "method" => $method,
                 "params" => $param_routuer,
@@ -165,22 +166,25 @@ class ViewHelper {
         $urlParts = [];
         
         // ✅ **Thêm module nếu có (VD: admin)**
-        if (!empty($param['module'])) {
-            $urlParts[] = strtolower($param['module']);
+        if (!empty($param["params"][0])) {
+            $urlParts[] = $param["params"][0];
         }
         
         // ✅ **Thêm controller**
-        if (!empty($param['controller'])) {
-            $urlParts[] = strtolower($param['controller']);
+        if (!empty($param["params"][1])) {
+            $urlParts[] = $param["params"][1];
         }
         
         // ✅ **Thêm method**
-        if (!empty($param['method'])) {
-            $urlParts[] = strtolower($param['method']);
+        if (!empty($param["params"][2])) {
+            $urlParts[] = $param["params"][2];
         }
-        
         // ✅ **Ghép thành URL chuẩn**
         return BASE_URL . '/' . implode('/', $urlParts);
+    }
+    
+    private function toCamelCase($string) {
+        return lcfirst(str_replace(' ', '', ucwords(str_replace('-', ' ', $string))));
     }
     
     public function getParams(): array{
@@ -210,12 +214,13 @@ class ViewHelper {
         
         if (!empty($uriParts[0])) {
             $controller = ucfirst($uriParts[0]);
+            $controller = str_replace(' ', '', ucwords(str_replace('-', ' ', $controller)));
             $params[] = $uriParts[0];
             array_shift($uriParts);
         }
         
         if (!empty($uriParts[0])) {
-            $method = $uriParts[0];
+            $method = $this->toCamelCase($uriParts[0]);
             $params[] = $uriParts[0];
             array_shift($uriParts);
         }

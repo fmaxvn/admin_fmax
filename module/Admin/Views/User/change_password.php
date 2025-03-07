@@ -35,7 +35,7 @@
 <script>
     function validateForm() {
         let isValid = true;
-        
+
         // Lấy giá trị nhập vào
         let oldPassword = document.getElementById("old_password");
         let newPassword = document.getElementById("new_password");
