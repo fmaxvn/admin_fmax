@@ -88,6 +88,23 @@ class Validator
                     $this->errors[$field][] = "Mật khẩu phải từ 8-16 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt (!@#$%^&*()_+<>?).";
                 }
                 break;
+            case 'in': // Kiểm tra giá trị có trong danh sách cho phép (VD: sex = 0,1)
+                if (!in_array($value, explode(',', $ruleValue))) {
+                    $this->errors[$field][] = "Trường $field phải là một trong các giá trị: $ruleValue.";
+                }
+                break;
+
+            case 'date': // Kiểm tra ngày hợp lệ
+                if (!strtotime($value)) {
+                    $this->errors[$field][] = "Trường $field phải là một ngày hợp lệ.";
+                }
+                break;
+
+            case 'before_or_equal': // Kiểm tra ngày không vượt quá ngày hiện tại
+                if (strtotime($value) > strtotime($ruleValue)) {
+                    $this->errors[$field][] = "Trường $field không được lớn hơn $ruleValue.";
+                }
+                break;
         }
     }
 

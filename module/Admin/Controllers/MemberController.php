@@ -25,7 +25,7 @@ class MemberController extends ViewHelper
     public function index()
     {
 
-        $db = new DBHandler($this->table, 'tech_global_27_08_2024');
+        $db = new DBHandler($this->table);
 
         // ✅ **Lấy tham số từ URL**
         $search = $_GET['search'] ?? ''; // Tìm kiếm theo tên
@@ -238,11 +238,15 @@ class MemberController extends ViewHelper
                     ]);
                 }
             }
-
             return $view->getLayout([
                 'member' => $member,
                 'error' => "Không có dữ liệu nào được cập nhật"
-            ]);
+            ], ['controller' => 'Member', 'method' => 'index.php']);
+
+            // return $view->getLayout([
+            //     'member' => $member,
+            //     'error' => "Không có dữ liệu nào được cập nhật"
+            // ], ['layoutPath' => BASE_PATH . "/module/Admin/Views/Member/index.php"]);
         }
 
         // ✅ Nếu chỉ là GET request, hiển thị form chỉnh sửa
@@ -259,7 +263,7 @@ class MemberController extends ViewHelper
         $data = array();
         $params = $this->getParams();
 
-        $db = new DBHandler($this->table, 'tech_global_27_08_2024');
+        $db = new DBHandler($this->table);
         $data['memberId'] = $memberId = $params['id'];
 
 

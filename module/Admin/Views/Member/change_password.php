@@ -23,7 +23,9 @@
                 <small class="error"><?= htmlspecialchars(implode(', ', $errors['confirm_password'])) ?></small>
             <?php endif; ?>
         </div>
-
+        <?php if (!empty($errors)): ?>
+            <small class="error"><?= htmlspecialchars($error) ?></small>
+        <?php endif; ?>
         <button type="submit" class="btn btn-primary w-100">Đổi mật khẩu</button>
     </form>
 </div>
