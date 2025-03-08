@@ -53,55 +53,19 @@
 
         <div class="row">
             <!-- Hàng 1 -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label for="code">Mã đơn hàng</label>
                     <input type="text" class="form-control" id="code" name="code" value="<?= htmlspecialchars($cartGlobal['code'] ?? '') ?>" disabled>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="name">Tên khách hàng</label>
-                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($cartGlobal['name'] ?? '') ?>">
-                </div>
-            </div>
-
-            <!-- Hàng 2 -->
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="mobile">Số điện thoại</label>
-                    <input type="text" class="form-control" id="mobile" name="mobile" value="<?= htmlspecialchars($cartGlobal['mobile'] ?? '') ?>">
-                    <?php if (!empty($errors['mobile'])): ?>
-                        <small class="error"><?= htmlspecialchars(implode(', ', $errors['mobile'])) ?></small>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="address">Địa chỉ</label>
-                    <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($cartGlobal['address'] ?? '') ?>">
-                </div>
-            </div>
-
-            <!-- Hàng 3 -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label for="total_price">Tổng tiền</label>
                     <input type="number" class="form-control" id="total_price" name="total_price" value="<?= htmlspecialchars($cartGlobal['total_price'] ?? '') ?>" disabled>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="tax_number">Mã số thuế</label>
-                    <input type="text" class="form-control" id="tax_number" name="tax_number" value="<?= htmlspecialchars($cartGlobal['tax_number'] ?? '') ?>">
-                </div>
-            </div>
-
-            <!-- Hàng 4 -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label for="id_status">Trạng thái</label>
                     <select class="form-select" id="id_status" name="id_status">
@@ -116,6 +80,37 @@
                     <?php endif; ?>
                 </div>
             </div>
+            <hr>
+
+            <!-- Hàng 2 -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="name">Tên khách hàng</label>
+                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($cartGlobal['name'] ?? '') ?>">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="mobile">Số điện thoại</label>
+                    <input type="number" class="form-control" id="mobile" name="mobile" value="<?= htmlspecialchars($cartGlobal['mobile'] ?? '') ?>">
+                    <?php if (!empty($errors['mobile'])): ?>
+                        <small class="error text-danger"><?= htmlspecialchars(implode(', ', $errors['mobile'])) ?></small>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="address">Địa chỉ</label>
+                    <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($cartGlobal['address'] ?? '') ?>">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="tax_number">Mã số thuế</label>
+                    <input type="text" class="form-control" id="tax_number" name="tax_number" value="<?= htmlspecialchars($cartGlobal['tax_number'] ?? '') ?>">
+                </div>
+            </div>
+
         </div>
 
     </form>

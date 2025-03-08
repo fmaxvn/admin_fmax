@@ -36,7 +36,7 @@
                             <?php if (!empty($user['image'])): ?>
                                 <img src="<?= $this->getImageUrl($user['image']) ?>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
                             <?php else: ?>
-                                <img src="<?= URL_ASSETS ?>/images/default-avatar.png" alt="Default Avatar" class="rounded-circle" width="40" height="40">
+                                <img src="<?= URL_ASSETS ?>/images/default.jpg" alt="Default Avatar" class="rounded-circle" width="40" height="40">
                             <?php endif; ?>
                         </td>
                         <td><?= htmlspecialchars($user['fullname'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>

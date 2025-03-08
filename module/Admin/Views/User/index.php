@@ -37,7 +37,7 @@
                             <?php if (!empty($user['avatar'])): ?>
                                 <img src="<?= $this->getImageUrl($user['avatar']) ?>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
                             <?php else: ?>
-                                <img src="<?= URL_ASSETS ?>/images/default-avatar.png" alt="Default Avatar" class="rounded-circle" width="40" height="40">
+                                <img src="<?= URL_ASSETS ?>/images/default.jpg" alt="Default Avatar" class="rounded-circle" width="40" height="40">
                             <?php endif; ?>
                         </td>
                         <td><?= htmlspecialchars($user['fullname'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
@@ -92,52 +92,52 @@
 
 <!-- JavaScript cho chức năng xóa -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteButtons = document.querySelectorAll('.delete-user');
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    let userIdToDelete = null;
-    
-    // Thêm sự kiện click cho các nút xóa
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            userIdToDelete = this.getAttribute('data-id');
-            deleteModal.show();
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-user');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        let userIdToDelete = null;
+
+        // Thêm sự kiện click cho các nút xóa
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                userIdToDelete = this.getAttribute('data-id');
+                deleteModal.show();
+            });
+        });
+
+        // Xử lý khi nhấn nút xác nhận xóa trong modal
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            if (!userIdToDelete) return;
+
+            // Tạo FormData để gửi request
+            const formData = new FormData();
+            formData.append('id', userIdToDelete);
+
+            // Gửi request xóa bằng fetch API
+            fetch('/admin/user/delete', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    deleteModal.hide();
+
+                    if (data.status === 'success') {
+                        // Hiển thị thông báo thành công
+                        alert(data.message);
+
+                        // Tải lại trang để cập nhật danh sách
+                        window.location.reload();
+                    } else {
+                        // Hiển thị thông báo lỗi
+                        alert(data.message || 'Có lỗi xảy ra khi xóa user');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    deleteModal.hide();
+                    alert('Đã xảy ra lỗi khi xóa user');
+                });
         });
     });
-    
-    // Xử lý khi nhấn nút xác nhận xóa trong modal
-    document.getElementById('confirmDelete').addEventListener('click', function() {
-        if (!userIdToDelete) return;
-        
-        // Tạo FormData để gửi request
-        const formData = new FormData();
-        formData.append('id', userIdToDelete);
-        
-        // Gửi request xóa bằng fetch API
-        fetch('/admin/user/delete', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            deleteModal.hide();
-            
-            if (data.status === 'success') {
-                // Hiển thị thông báo thành công
-                alert(data.message);
-                
-                // Tải lại trang để cập nhật danh sách
-                window.location.reload();
-            } else {
-                // Hiển thị thông báo lỗi
-                alert(data.message || 'Có lỗi xảy ra khi xóa user');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            deleteModal.hide();
-            alert('Đã xảy ra lỗi khi xóa user');
-        });
-    });
-});
 </script>

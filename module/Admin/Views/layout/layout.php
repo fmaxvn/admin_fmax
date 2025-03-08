@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Layout chính cho tất cả trang
  *
@@ -9,28 +10,98 @@
 ?>
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'Trang quản lý') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
+    <!-- Icon Phosphor -->
+    <link rel="stylesheet" href="<?php echo URL_ASSETS . '/fonts/phosphor-icons/bold/style.css'; ?>">
+    <link rel="stylesheet" href="<?php echo URL_ASSETS . '/fonts/phosphor-icons/duotone/style.css'; ?>">
+    <link rel="stylesheet" href="<?php echo URL_ASSETS . '/fonts/phosphor-icons/fill/style.css'; ?>">
+    <link rel="stylesheet" href="<?php echo URL_ASSETS . '/fonts/phosphor-icons/light/style.css'; ?>">
+    <link rel="stylesheet" href="<?php echo URL_ASSETS . '/fonts/phosphor-icons/regular/style.css'; ?>">
+    <link rel="stylesheet" href="<?php echo URL_ASSETS . '/fonts/phosphor-icons/thin/style.css'; ?>">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { display: flex; flex-direction: column; min-height: 100vh; }
-        header { background: #007bff; color: white; padding: 15px; text-align: center; font-size: 20px; }
-        .wrapper { display: flex; flex: 1; }
-        aside { width: 220px; background: #f4f4f4; padding: 20px; flex-shrink: 0; }
-        .content { flex: 1; display: flex; flex-direction: column; }
-        main { flex: 1; padding: 20px; background: #fff; }
-        footer { background: #333; color: white; padding: 10px; text-align: center; width: 100%; }
-        ul { list-style: none; padding: 0; }
-        ul li { margin: 10px 0; }
-        ul li a { text-decoration: none; color: #333; display: block; padding: 5px; }
-        ul li a:hover { background: #ddd; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .wrapper {
+            display: flex;
+            flex: 1;
+        }
+
+        aside {
+            width: 220px;
+            background: #f4f4f4;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            background: #fff;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin: 10px 0;
+        }
+
+        ul li a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 5px;
+        }
+
+        ul li a:hover {
+            background: #ddd;
+        }
     </style>
 </head>
+
 <body>
 
     <?php require BASE_PATH . "/module/Admin/Views/layout/blocks/header.php"; ?>
@@ -55,4 +126,5 @@
     </div>
 
 </body>
+
 </html>

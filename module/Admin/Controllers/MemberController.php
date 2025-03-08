@@ -273,7 +273,7 @@ class MemberController extends ViewHelper
             $confirmPassword = $_POST['confirm_password'] ?? '';
 
             if ($newPassword !== $confirmPassword) {
-                $data['error'] = "Mật khẩu xác nhận không khớp.";
+                $data['errors'] = "Mật khẩu xác nhận không khớp.";
                 return $view->getLayout($data);
             }
 
@@ -286,6 +286,7 @@ class MemberController extends ViewHelper
             if ($validator->fails()) {
                 $data['errors'] = $validator->errors(); // ✅ Truyền danh sách lỗi ra view
                 $data['old'] = $_POST; // ✅ Giữ lại dữ liệu đã nhập
+
                 return $view->getLayout($data);
             }
 

@@ -106,7 +106,7 @@ class OrderController extends ViewHelper
             if ($validator->fails()) {
                 $data['errors'] = $validator->errors(); // ✅ Truyền danh sách lỗi ra view
                 $data['old'] = $_POST; // ✅ Giữ lại dữ liệu đã nhập
-                // return $view->getLayout(array_merge(['member' => $member], $data));
+                return $view->getLayout(array_merge(['cartGlobal' => $cartGlobal], $data));
             }
 
             // Lấy toàn bộ dữ liệu từ form

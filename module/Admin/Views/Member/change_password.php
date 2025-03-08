@@ -3,10 +3,18 @@
     <?php if (!empty($success)): ?>
         <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
+
+
     <form action="/admin/member/change_password/id/<?= $memberId ?>" method="POST" onsubmit="return validateForm()">
         <div class="mb-3">
             <label for="new_password" class="form-label">Mật khẩu mới:</label>
-            <input type="password" name="new_password" id="new_password" class="form-control" required minlength="6">
+            <!-- <input type="password" name="new_password" id="new_password" class="form-control" required minlength="6"> -->
+            <div class="input-group">
+                <input type="password" name="new_password" id="new_password" class="form-control" required minlength="6">
+                <span class="input-group-text toggle-password" data-target="new_password">
+                    <i class="ph ph-eye"></i>
+                </span>
+            </div>
             <?php if (!empty($errors['new_password'])): ?>
                 <small class="error text-danger"><?= htmlspecialchars(implode(', ', $errors['new_password'])) ?></small>
             <?php endif; ?>
@@ -18,14 +26,21 @@
 
         <div class="mb-3">
             <label for="confirm_password" class="form-label">Xác nhận mật khẩu:</label>
-            <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+            <div class="input-group">
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                <span class="input-group-text toggle-password" data-target="confirm_password">
+                    <i class="ph ph-eye"></i>
+                </span>
+            </div>
+            <!-- <input type="password" name="confirm_password" id="confirm_password" class="form-control" required> -->
             <?php if (!empty($errors['confirm_password'])): ?>
                 <small class="error"><?= htmlspecialchars(implode(', ', $errors['confirm_password'])) ?></small>
             <?php endif; ?>
+
+            <?php if (!empty($errors)): ?>
+                <small class="error text-danger"><?= htmlspecialchars($errors) ?></small>
+            <?php endif; ?>
         </div>
-        <?php if (!empty($errors)): ?>
-            <small class="error"><?= htmlspecialchars($error) ?></small>
-        <?php endif; ?>
         <button type="submit" class="btn btn-primary w-100">Đổi mật khẩu</button>
     </form>
 </div>
@@ -64,4 +79,22 @@
 
         return isValid;
     }
+
+    document.querySelectorAll(".toggle-password").forEach(function(toggle) {
+        toggle.addEventListener("click", function() {
+            let targetId = this.getAttribute("data-target");
+            let inputField = document.getElementById(targetId);
+            let icon = this.querySelector("i");
+
+            if (inputField.type === "password") {
+                inputField.type = "text";
+                icon.classList.remove("ph-eye");
+                icon.classList.add("ph-eye-slash");
+            } else {
+                inputField.type = "password";
+                icon.classList.remove("ph-eye-slash");
+                icon.classList.add("ph-eye");
+            }
+        });
+    });
 </script>
