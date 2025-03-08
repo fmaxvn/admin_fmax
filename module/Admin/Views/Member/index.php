@@ -44,11 +44,16 @@
                         <td><?= htmlspecialchars($user['mobile'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($user['updated'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
-                            <?php if (!empty($user['showview'])): ?>
-                                <span class="badge bg-success">Hiện</span>
-                            <?php else: ?>
-                                <span class="badge bg-secondary">Ẩn</span>
-                            <?php endif; ?>
+                            <!-- Form-switch trạng thái ẩn/hiện -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input toggle-status" type="checkbox"
+                                    id="switch_<?= $user['id'] ?>"
+                                    data-id="<?= $user['id'] ?>"
+                                    <?= !empty($user['showview']) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="switch_<?= $user['id'] ?>">
+                                    <?= !empty($user['showview']) ? 'Hiện' : 'Ẩn' ?>
+                                </label>
+                            </div>
                         </td>
                         <td>
                             <div class="btn-group">
@@ -71,73 +76,47 @@
 <!-- Phân trang -->
 <?php echo $pagination; ?>
 
-<!-- Modal xác nhận xóa -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Bạn có chắc chắn muốn xóa user này?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- JavaScript cho chức năng xóa -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteButtons = document.querySelectorAll('.delete-user');
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        let userIdToDelete = null;
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".toggle-status").forEach(function(toggle) {
+            toggle.addEventListener("change", function() {
+                let userId = this.getAttribute("data-id");
+                let newStatus = this.checked ? 1 : 0;
+                let confirmMessage = newStatus ? "Bạn có chắc chắn muốn hiển thị người dùng này?" : "Bạn có chắc chắn muốn ẩn người dùng này?";
 
-        // Thêm sự kiện click cho các nút xóa
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                userIdToDelete = this.getAttribute('data-id');
-                deleteModal.show();
+                // ✅ Hiển thị hộp thoại xác nhận trước khi thay đổi trạng thái
+                if (!confirm(confirmMessage)) {
+                    this.checked = !this.checked; // Hoàn tác nếu người dùng chọn "Hủy"
+                    return;
+                }
+
+                // ✅ Gửi yêu cầu AJAX nếu người dùng xác nhận
+                fetch('/admin/member/toggleStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: userId,
+                            showview: newStatus
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.nextElementSibling.textContent = newStatus ? "Hiện" : "Ẩn";
+                        } else {
+                            alert("Lỗi khi cập nhật trạng thái!");
+                            this.checked = !this.checked; // Hoàn tác nếu có lỗi
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Lỗi:", error);
+                        alert("Không thể cập nhật trạng thái.");
+                        this.checked = !this.checked; // Hoàn tác nếu có lỗi
+                    });
             });
-        });
-
-        // Xử lý khi nhấn nút xác nhận xóa trong modal
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            if (!userIdToDelete) return;
-
-            // Tạo FormData để gửi request
-            const formData = new FormData();
-            formData.append('id', userIdToDelete);
-
-            // Gửi request xóa bằng fetch API
-            fetch('/admin/member/delete', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    deleteModal.hide();
-
-                    if (data.status === 'success') {
-                        // Hiển thị thông báo thành công
-                        alert(data.message);
-
-                        // Tải lại trang để cập nhật danh sách
-                        window.location.reload();
-                    } else {
-                        // Hiển thị thông báo lỗi
-                        alert(data.message || 'Có lỗi xảy ra khi xóa user');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    deleteModal.hide();
-                    alert('Đã xảy ra lỗi khi xóa user');
-                });
         });
     });
 </script>

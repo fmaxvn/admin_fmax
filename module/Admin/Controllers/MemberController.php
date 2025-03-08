@@ -232,16 +232,14 @@ class MemberController extends ViewHelper
                 $success = $db->update($updateData, ['id' => $memberId]);
                 if ($success) {
                     $member = array_merge($member, $updateData);
-                    return $view->getLayout([
-                        'member' => $member,
-                        'success' => "Cập nhật người dùng thành công"
-                    ]);
+                    header("Location: /admin/member/index");
+                    exit();
                 }
             }
             return $view->getLayout([
                 'member' => $member,
                 'error' => "Không có dữ liệu nào được cập nhật"
-            ], ['controller' => 'Member', 'method' => 'index.php']);
+            ]);
 
             // return $view->getLayout([
             //     'member' => $member,
@@ -312,5 +310,52 @@ class MemberController extends ViewHelper
         }
 
         return $view->getLayout($data);
+    }
+    public function toggleStatus()
+    {
+
+        // Kết nối Database
+        $db = new DBHandler($this->table);
+
+        // Kiểm tra phương thức POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); // Method Not Allowed
+            echo json_encode(['success' => false, 'message' => 'Phương thức không hợp lệ']);
+            exit();
+        }
+
+        // Lấy dữ liệu JSON từ request
+        $input = json_decode(file_get_contents("php://input"), true);
+
+        // Kiểm tra dữ liệu hợp lệ
+        if (!isset($input['id']) || !isset($input['showview'])) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit();
+        }
+
+        $memberId = (int) $input['id'];
+        $newStatus = (int) $input['showview'];
+
+
+        // Kiểm tra user tồn tại
+        $member = $db->getOne(['id' => $memberId]);
+        if (!$member) {
+            http_response_code(404); // Not Found
+            echo json_encode(['success' => false, 'message' => 'Người dùng không tồn tại']);
+            exit();
+        }
+
+        // Cập nhật trạng thái `showview`
+        $updateStatus = $db->update(['showview' => $newStatus], ['id' => $memberId]);
+
+        if ($updateStatus) {
+            echo json_encode(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật']);
+        }
+
+        exit();
     }
 }
