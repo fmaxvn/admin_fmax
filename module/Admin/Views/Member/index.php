@@ -51,7 +51,6 @@
                                     data-id="<?= $user['id'] ?>"
                                     <?= !empty($user['showview']) ? 'checked' : '' ?>>
                                 <label class="form-check-label" for="switch_<?= $user['id'] ?>">
-                                    <?= !empty($user['showview']) ? 'Hiện' : 'Ẩn' ?>
                                 </label>
                             </div>
                         </td>
@@ -104,9 +103,7 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            this.nextElementSibling.textContent = newStatus ? "Hiện" : "Ẩn";
-                        } else {
+                        if (!data.success) {
                             alert("Lỗi khi cập nhật trạng thái!");
                             this.checked = !this.checked; // Hoàn tác nếu có lỗi
                         }
