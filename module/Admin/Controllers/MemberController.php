@@ -197,7 +197,6 @@ class MemberController extends ViewHelper
             if ($validator->fails()) {
                 $data['errors'] = $validator->errors(); // ✅ Truyền danh sách lỗi ra view
                 $data['old'] = $_POST; // ✅ Giữ lại dữ liệu đã nhập
-
                 return $view->getLayout(array_merge(['member' => $member], $data));
             }
             // Lấy dữ liệu hợp lệ từ form
@@ -278,14 +277,13 @@ class MemberController extends ViewHelper
 
             $validator = new Validator();
             $validator->validate($_POST, [
-                'new_password' => ['nullable', 'password'],
+                'new_password' => ['required', 'password'],
             ]);
 
             // Kiểm tra nếu có lỗi
             if ($validator->fails()) {
                 $data['errors'] = $validator->errors(); // ✅ Truyền danh sách lỗi ra view
                 $data['old'] = $_POST; // ✅ Giữ lại dữ liệu đã nhập
-
                 return $view->getLayout($data);
             }
 

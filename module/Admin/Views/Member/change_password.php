@@ -1,21 +1,19 @@
 <div class="container">
     <h2 class="text-center text-primary">Đổi mật khẩu</h2>
-
-    <?php if (!empty($error)): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-
     <?php if (!empty($success)): ?>
         <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
-
     <form action="/admin/member/change_password/id/<?= $memberId ?>" method="POST" onsubmit="return validateForm()">
         <div class="mb-3">
             <label for="new_password" class="form-label">Mật khẩu mới:</label>
             <input type="password" name="new_password" id="new_password" class="form-control" required minlength="6">
-            <?php if (!empty($errors['password'])): ?>
-                <small class="error"><?= htmlspecialchars(implode(', ', $errors['password'])) ?></small>
+            <?php if (!empty($errors['new_password'])): ?>
+                <small class="error text-danger"><?= htmlspecialchars(implode(', ', $errors['new_password'])) ?></small>
             <?php endif; ?>
+            <p class="">Lưu ý: <br>
+                - Mật khẩu phải từ 8-16 ký tự <br>
+                - Có ít nhất 1 chữ hoa, 1 chữ thường, 1 số <br>
+                - Có 1 ký tự đặc biệt (!@#$%^&*()_+<>?).</p>
         </div>
 
         <div class="mb-3">
