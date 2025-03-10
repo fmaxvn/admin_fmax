@@ -59,7 +59,8 @@ class DBHandler
      * @param array $conditions Mảng điều kiện (VD: ['users.status' => 'active', 'age' => ['BETWEEN', 18, 30]])
      * @return array Mảng chứa 'sql' => câu WHERE và 'params' => tham số
      */
-    private function buildConditions(array $conditions): array {
+    private function buildConditions(array $conditions): array
+    {
         $whereClauses = [];
         $params = [];
 

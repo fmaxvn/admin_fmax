@@ -108,31 +108,40 @@
 <aside class="sidebar">
     <h3>Quản lý Fmax</h3>
     <ul class="menu">
-        <li><a href="<?= BASE_URL ?>/admin/dashboard">🏠 Dashboard</a></li>
+        <li>
+            <a href="<?= BASE_URL ?>/admin/dashboard">
+                <i class="me-2 ph-bold ph-house"></i> <span>Dashboard</span>
+            </a>
+        </li>
 
         <li class="has-submenu">
-            <a href="#" class="d-flex justify-content-between">🌐 Quản lý Website <span class="arrow">▼</span></a>
+            <a href="#" class="d-flex justify-content-between align-items-center">
+                <span><i class="me-2 ph-bold ph-globe"></i> Quản lý Website </span><span class="arrow">▼</span>
+            </a>
             <ul class="submenu">
-                <li><a href="<?= BASE_URL ?>/admin/website-management/index">🖥️ Quản lý Website</a></li>
-                <li><a href="<?= BASE_URL ?>/admin/domain-extentions/index">🌍 Quản lý Domain mở rộng</a></li>
-                <li><a href="<?= BASE_URL ?>/admin/platform-utilities/index">🛠️ Quản lý Tiện ích & Nền tảng</a></li>
-                <li><a href="<?= BASE_URL ?>/admin/installed-utilities/index">🔌 Quản lý Tiện ích đã cài đặt</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/website-management/index"><i class="me-2 ph-bold ph-monitor"></i> Quản lý Domain</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/domain-extentions/index"><i class="me-2 ph-bold ph-globe-hemisphere-west"></i> Quản lý Domain mở rộng</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/apps-market/index"><i class="me-2 ph-bold ph-wrench"></i> Quản lý Tiện ích & Nền tảng</a></li>
             </ul>
         </li>
 
         <li class="has-submenu">
-            <a href="#" class="d-flex justify-content-between">📦 Quản lý Đơn hàng & Thanh toán <span class="arrow">▼</span></a>
+            <a href="#" class="d-flex justify-content-between align-items-center">
+                <span><i class="me-2 ph-bold ph-package"></i> Quản lý Đơn hàng & Thanh toán</span> <span class="arrow">▼</span>
+            </a>
             <ul class="submenu">
-                <li><a href="<?= BASE_URL ?>/admin/order/index">🛒 Quản lý Đơn hàng</a></li>
-                <li><a href="<?= BASE_URL ?>/admin/payment-shipping/index">🚚 Quản lý Thanh toán & Shipping</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/order/index"><i class="me-2 ph-bold ph-shopping-cart"></i> Quản lý Đơn hàng</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/payment-shipping/index"><i class="me-2 ph-bold ph-truck"></i> Quản lý Thanh toán & Shipping</a></li>
             </ul>
         </li>
 
         <li class="has-submenu">
-            <a href="#" class="d-flex justify-content-between">👥 Quản lý Người dùng <span class="arrow">▼</span></a>
+            <a href="#" class="d-flex justify-content-between align-items-center">
+                <span><i class="me-2 ph-bold ph-users"></i> Quản lý Người dùng</span> <span class="arrow">▼</span>
+            </a>
             <ul class="submenu">
-                <li><a href="<?= BASE_URL ?>/admin/member/index">👤 Quản lý Member</a></li>
-                <li><a href="<?= BASE_URL ?>/admin/user/index">👤 Quản lý user</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/member/index"><i class="me-2 ph-bold ph-user"></i> Quản lý Member</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/user/index"><i class="me-2 ph-bold ph-user-circle"></i> Quản lý user</a></li>
             </ul>
         </li>
     </ul>
