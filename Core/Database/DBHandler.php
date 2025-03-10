@@ -59,8 +59,7 @@ class DBHandler
      * @param array $conditions Mảng điều kiện (VD: ['users.status' => 'active', 'age' => ['BETWEEN', 18, 30]])
      * @return array Mảng chứa 'sql' => câu WHERE và 'params' => tham số
      */
-    private function buildConditions(array $conditions): array
-    {
+    private function buildConditions(array $conditions): array {
         $whereClauses = [];
         $params = [];
 
@@ -74,36 +73,60 @@ class DBHandler
                 $key = "{$this->table}.$key";
             }
 
-            $safeKey = $key;
-            $paramKey = preg_replace('/[^a-zA-Z0-9_]/', '_', $key); // Chuẩn hóa paramKey
+            $safeKey = preg_replace('/[^a-zA-Z0-9_]/', '_', $key); // ✅ Chuẩn hóa paramKey
+            $paramKey = ":$safeKey";
 
             if (is_array($value) && isset($value[0])) {
-                match ($value[0]) {
-                    'BETWEEN' => isset($value[1], $value[2]) &&
-                        $whereClauses[] = "$safeKey BETWEEN :{$paramKey}_1 AND :{$paramKey}_2" &&
-                        $params["{$paramKey}_1"] = $value[1] &&
-                        $params["{$paramKey}_2"] = $value[2],
+                switch (strtoupper($value[0])) {
+                    case 'BETWEEN':
+                        if (isset($value[1], $value[2])) {
+                            $whereClauses[] = "$key BETWEEN :{$safeKey}_1 AND :{$safeKey}_2";
+                            $params[":{$safeKey}_1"] = $value[1];
+                            $params[":{$safeKey}_2"] = $value[2];
+                        }
+                        break;
 
-                    'LIKE' => !empty($value[1]) &&
-                        $whereClauses[] = "$safeKey LIKE :$paramKey" &&
-                        $params[$paramKey] = "{$value[1]}",
+                    case 'LIKE':
+                        if (!empty($value[1])) {
+                            $whereClauses[] = "$key LIKE $paramKey";
+                            $params[$paramKey] = "%{$value[1]}%"; // ✅ Thêm dấu `%` đúng format
+                        }
+                        break;
 
-                    'IN' => (!empty($value[1]) && is_array($value[1])) &&
-                        $whereClauses[] = "$safeKey IN (" . implode(", ", array_map(fn($i) => ":{$paramKey}_{$i}", array_keys($value[1]))) . ")" &&
-                        array_walk($value[1], fn($val, $index) => $params["{$paramKey}_{$index}"] = $val),
+                    case 'IN':
+                        if (!empty($value[1]) && is_array($value[1])) {
+                            $inPlaceholders = [];
+                            foreach ($value[1] as $index => $val) {
+                                $placeholder = ":{$safeKey}_{$index}";
+                                $inPlaceholders[] = $placeholder;
+                                $params[$placeholder] = $val;
+                            }
+                            $whereClauses[] = "$key IN (" . implode(", ", $inPlaceholders) . ")";
+                        }
+                        break;
 
-                    '!=' || '<>' => $whereClauses[] = "$safeKey != :$paramKey" && $params[$paramKey] = $value[1],
+                    case '!=':
+                    case '<>':
+                    case '>':
+                    case '>=':
+                    case '<':
+                    case '<=':
+                        $whereClauses[] = "$key {$value[0]} $paramKey";
+                        $params[$paramKey] = $value[1];
+                        break;
 
-                    '>' || '>=' || '<' || '<=' => $whereClauses[] = "$safeKey $value[0] :$paramKey" && $params[$paramKey] = $value[1],
+                    case 'IS NULL':
+                        $whereClauses[] = "$key IS NULL";
+                        break;
 
-                    'IS NULL' => $whereClauses[] = "$safeKey IS NULL",
-
-                    'IS NOT NULL' => $whereClauses[] = "$safeKey IS NOT NULL"
-                };
+                    case 'IS NOT NULL':
+                        $whereClauses[] = "$key IS NOT NULL";
+                        break;
+                }
             } elseif ($value === null) {
-                $whereClauses[] = "$safeKey IS NULL";
+                $whereClauses[] = "$key IS NULL";
             } else {
-                $whereClauses[] = "$safeKey = :$paramKey";
+                $whereClauses[] = "$key = $paramKey";
                 $params[$paramKey] = $value;
             }
         }
@@ -113,7 +136,6 @@ class DBHandler
             'params' => $params
         ];
     }
-
 
     /**
      * Đếm số lượng bản ghi trong bảng với điều kiện giống như getList()
@@ -132,7 +154,6 @@ class DBHandler
 
         return $result['total'] ?? 0;
     }
-
 
     /**
      * Lấy danh sách bản ghi theo điều kiện, có hỗ trợ JOIN.
@@ -168,22 +189,20 @@ class DBHandler
      * ```
      */
 
-
     public function getList(array $conditions = [], array $options = []): array
     {
-        $columns = !empty($options["columns"]) ? $options["columns"] : "{$this->table}.*"; // ✅ Mặc định lấy tất cả cột của bảng chính
+        $columns = !empty($options["columns"]) ? $options["columns"] : "{$this->table}.*";
 
         $sql = "SELECT $columns FROM {$this->table}";
 
         // ✅ **Thêm các JOIN nếu có**
         if (!empty($options['joins']) && is_array($options['joins'])) {
             foreach ($options['joins'] as $join) {
-                if (isset($join[0], $join[1], $join[2])) { // Kiểm tra đủ phần tử
-                    $joinType = strtoupper($join[0]); // Chuyển thành INNER JOIN, LEFT JOIN
+                if (isset($join[0], $join[1], $join[2])) {
+                    $joinType = strtoupper($join[0]);
                     $joinTable = $join[1];
                     $joinCondition = $join[2];
 
-                    // ✅ Kiểm tra xem điều kiện có thiếu table hay không
                     if (!str_contains($joinCondition, ".")) {
                         throw new Exception("Lỗi JOIN: Điều kiện '$joinCondition' phải chứa tên bảng.");
                     }
@@ -193,7 +212,7 @@ class DBHandler
             }
         }
 
-        // Xây dựng WHERE
+        // ✅ Xây dựng WHERE
         $queryData = $this->buildConditions($conditions);
         $sql .= " " . $queryData["sql"];
 
@@ -205,8 +224,17 @@ class DBHandler
 
         // ✅ **Thêm ORDER BY nếu có**
         if (!empty($options['order_by'])) {
-            $orderByCols = array_map(fn($col) => (str_contains($col, '.') ? $col : "{$this->table}.$col"), $options['order_by']);
-            $sql .= " ORDER BY " . implode(", ", $orderByCols);
+            $orderClauses = [];
+            foreach ($options['order_by'] as $order) {
+                if (preg_match('/^([\w.]+)\s(ASC|DESC)$/i', trim($order), $matches)) {
+                    $column = $matches[1]; // Tên cột
+                    $direction = strtoupper($matches[2]); // ASC hoặc DESC
+                    $orderClauses[] = "$column $direction";
+                }
+            }
+            if (!empty($orderClauses)) {
+                $sql .= " ORDER BY " . implode(", ", $orderClauses);
+            }
         }
 
         // ✅ **Thêm LIMIT và OFFSET nếu có**
@@ -221,9 +249,9 @@ class DBHandler
         // ✅ **Chuẩn bị và thực thi câu truy vấn**
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($queryData['params']);
-        return $stmt->fetchAll();
-    }
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     /**
      * Lấy một bản ghi duy nhất theo điều kiện.
@@ -240,7 +268,6 @@ class DBHandler
      */
     public function getOne(array $conditions = [], array $options = []): ?array
     {
-
         $options["limit"] = 1;
         $result = $this->getList($conditions, $options);
         return $result[0] ?? null;

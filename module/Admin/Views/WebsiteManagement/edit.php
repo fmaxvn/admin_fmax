@@ -11,7 +11,7 @@
         <div class="alert alert-success"><?= $success; ?></div>
     <?php endif; ?>
 
-    <form action="<?= BASE_URL_ADMIN ?>/website/edit/id/<?= $domain['id'] ?? ''; ?>" method="POST">
+    <form action="<?= BASE_URL_ADMIN ?>/website-management/edit/id/<?= $domain['id'] ?? ''; ?>" method="POST">
         <input type="hidden" name="id" value="<?= $domain['id'] ?? ''; ?>">
 
         <div class="mb-3">
@@ -24,19 +24,22 @@
             <input type="text" class="form-control" name="database_name" value="<?= $domain['database_name'] ?? ''; ?>" required>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">ID PCN Group</label>
-            <input type="text" class="form-control" name="id_pcngroup" value="<?= $domain['id_pcngroup'] ?? ''; ?>" required>
-        </div>
-
+        <!-- ✅ Dropdown cho Type Template -->
         <div class="mb-3">
             <label class="form-label">Type Template</label>
-            <input type="text" class="form-control" name="type_template" value="<?= $domain['type_template'] ?? ''; ?>" required>
+            <select class="form-control" name="type_template" required>
+                <option value="">Chọn Template</option>
+                <?php foreach ($templates as $template): ?>
+                    <option value="<?= $template['id']; ?>" <?= ($domain['type_template'] ?? '') == $template['id'] ? 'selected' : ''; ?>>
+                        <?= htmlspecialchars($template['name'], ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Domain Old</label>
-            <input type="text" class="form-control" name="domain_old" value="<?= $domain['domain_old'] ?? ''; ?>">
+            <label class="form-label">Folder</label>
+            <input type="text" class="form-control" name="folder" value="<?= $domain['folder'] ?? ''; ?>">
         </div>
 
         <button type="submit" class="btn btn-primary">Cập nhật</button>
