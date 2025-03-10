@@ -1,3 +1,9 @@
+<style>
+    a {
+        text-decoration: none;
+        color: #000;
+    }
+</style>
 <h2>Danh sách tài khoản</h2>
 
 <div class="d-flex justify-content-between mb-4">
@@ -39,7 +45,7 @@
                                 <img src="<?= URL_ASSETS ?>/images/default.jpg" alt="Default Avatar" class="rounded-circle" width="40" height="40">
                             <?php endif; ?>
                         </td>
-                        <td><?= htmlspecialchars($user['fullname'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><a href="/admin/member/edit/id/<?= $user['id'] ?>"><?= htmlspecialchars($user['fullname'] ?? '', ENT_QUOTES, 'UTF-8') ?></a></td>
                         <td><?= htmlspecialchars($user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($user['mobile'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($user['updated'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>

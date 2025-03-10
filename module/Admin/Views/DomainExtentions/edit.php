@@ -90,8 +90,8 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-check d-flex align-items-center mb-3">
-                            <input class="form-check-input me-2" type="radio" name="percent" id="percent1" value="option1" <?php echo !empty($domainExtentions['percent']) ? "checked" : ""; ?>>
-                            <label class="form-check-label" for="percent1">Theo trăm</label>
+                            <input class="form-check-input me-2" type="radio" name="percent" id="percent1" value="option1" <?php echo !empty($domainExtentions['percent']) || (empty($domainExtentions['percent']) && empty($domainExtentions['price_km'])) ? "checked" : ""; ?>>
+                            <label class="form-check-label" for="percent1">Theo phần trăm</label>
                         </div>
                         <div class="input-group">
                             <input type="number" class="form-control" name="percent" id="percent_input" value="<?php echo $domainExtentions['percent']; ?>">

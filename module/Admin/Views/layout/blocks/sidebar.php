@@ -140,9 +140,13 @@
                 <span><i class="me-2 ph-bold ph-users"></i> Quản lý Người dùng</span> <span class="arrow">▼</span>
             </a>
             <ul class="submenu">
-                <li><a href="<?= BASE_URL ?>/admin/member/index"><i class="me-2 ph-bold ph-user"></i> Quản lý Member</a></li>
                 <li><a href="<?= BASE_URL ?>/admin/user/index"><i class="me-2 ph-bold ph-user-circle"></i> Quản lý user</a></li>
             </ul>
+        </li>
+        <li>
+            <a href="<?= BASE_URL ?>/admin/member/index" class="d-flex justify-content-between align-items-center">
+                <span><i class="me-2 ph-bold ph-users"></i> Quản lý khách hàng</span> </span>
+            </a>
         </li>
     </ul>
 </aside>

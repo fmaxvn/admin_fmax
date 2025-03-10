@@ -3,6 +3,11 @@
         width: 100px;
         height: 100px;
     }
+
+    a {
+        text-decoration: none;
+        color: #000;
+    }
 </style>
 <h2>Danh sách tài khoản</h2>
 
@@ -41,7 +46,7 @@
                     <tr>
                         <td><?= $counter++ ?></td>
                         <td><img class="apps-market__image" src="<?= $this->getImageUrl($val['images']) ?>" alt=""></td>
-                        <td><?= htmlspecialchars($val['name'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><a href="/admin/apps-market/edit/id/<?= $val['id'] ?>"> <?= htmlspecialchars($val['name'] ?? '', ENT_QUOTES, 'UTF-8') ?></a></td>
                         <td><?= htmlspecialchars($val['price'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <?php

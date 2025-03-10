@@ -3,6 +3,11 @@
         width: 100px;
         height: 100px;
     }
+
+    a {
+        text-decoration: none;
+        color: #000;
+    }
 </style>
 <h2>Danh sách tài khoản</h2>
 
@@ -39,7 +44,7 @@
                 <?php foreach ($listPaymentShipping as $val): ?>
                     <tr>
                         <td><?= $counter++ ?></td>
-                        <td><?= htmlspecialchars($val['code_shipping'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><a href="/admin/payment-shipping/edit/id/<?= $val['id'] ?>"><?= htmlspecialchars($val['code_shipping'] ?? '', ENT_QUOTES, 'UTF-8') ?></a></td>
                         <td><?= htmlspecialchars($val['code_cart'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($val['name'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($val['total'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>

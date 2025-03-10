@@ -1,3 +1,9 @@
+<style>
+    a {
+        text-decoration: none;
+        color: #000;
+    }
+</style>
 <h2>Danh sách tài khoản</h2>
 
 <div class="d-flex justify-content-between mb-4">
@@ -34,7 +40,7 @@
                 <?php foreach ($cartGlobal as $cart): ?>
                     <tr>
                         <td><?= $counter++ ?></td>
-                        <td><?= htmlspecialchars($cart['code'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><a href="/admin/order/edit/id/<?= $cart['id'] ?>"><?= htmlspecialchars($cart['code'] ?? '', ENT_QUOTES, 'UTF-8') ?></a> </td>
                         <td><?= htmlspecialchars($cart['name'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($cart['mobile'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($cart['address'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>

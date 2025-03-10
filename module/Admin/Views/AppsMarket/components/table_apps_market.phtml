@@ -1,238 +1,72 @@
-<style>
-    .ex__images {
-        height: 50px;
-        width: 50px;
-        padding: 5px;
-    }
-
-    .apps__market .ag-cell {
-        overflow: hidden;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-<div id="myGrid" style="height:calc(100vh - 94px);" class="ag-theme-alpine mb-3 apps__market"></div>
-
+<script src="<?php echo URL_ASSETS ?>/js/ag-grid-enterprise.js"></script>
 <script>
     let gridApi;
     const gridOptions = {
         columnDefs: [{
                 field: 'id',
                 headerName: 'STT',
-                filter: false,
                 minWidth: 50,
                 maxWidth: 100,
-                cellClass: 'd-flex align-items-center',
-                cellRenderer: (params) => {
-                    return params.rowIndex + 1;
-                },
-            },
-            {
-                field: 'images',
-                headerName: 'Hình ảnh',
-                filter: false,
-                minWidth: 200,
-                autoHeight: true,
-                cellClass: 'd-flex align-items-center justify-content-center',
-                cellRenderer: (params) => {
-                    return `
-                    <img class="ex__images text-dark" src="${params.value}">
-                    </img>`;
-                }
-
+                cellRenderer: (params) => params.node.rowIndex + 1
             },
             {
                 field: 'name',
                 headerName: 'Tên tiện ích',
-                filter: "agTextColumnFilter",
                 minWidth: 300,
-                autoHeight: true,
-                cellClass: 'd-flex align-items-center',
-                cellRenderer: (params) => {
-                    return `
-                    <a class=" text-decoration-none text-dark" href="<?php echo URL_ADMIN; ?>apps-market/edit/id=${params.data.id}">
-                        ${params.value}
-                    </a>`;
-                }
-
+                cellRenderer: (params) =>
+                    `<a class="text-decoration-none text-dark" href="<?= BASE_PATH; ?>apps-market/edit/id=${params.data.id}">${params.value}</a>`
             },
             {
                 field: 'price',
                 headerName: 'Giá',
-                filter: 'agTextColumnFilter',
-                autoHeight: true,
-                minWidth: 200,
-                cellClass: 'd-flex align-items-center justify-content-center',
-                cellRenderer: (params) => {
-                    return `
-                    <a class="text-decoration-none text-dark" href="javascript:void(0)">
-                        ${params.value}
-                    </a>`;
-                }
+                minWidth: 200
             },
             {
                 field: 'type',
                 headerName: 'Loại',
-                filter: false,
-                autoHeight: true,
                 minWidth: 200,
-                cellClass: 'd-flex align-items-center justify-content-center',
                 cellRenderer: (params) => {
                     const typeMapping = {
                         0: "Nền tảng",
-                        1: "Tiện ích",
+                        1: "Tiện ích"
                     };
-                    const valueType = typeMapping[params.value] || "Nâng cấp";
-                    return `
-                    <span class="text-decoration-none text-dark">
-                        ${valueType} 
-                    </span>`;
+                    return typeMapping[params.value] || "Nâng cấp";
                 }
-
             },
             {
                 field: 'showview',
                 headerName: 'Ẩn/Hiện',
-                filter: false,
                 minWidth: 110,
-                cellClass: 'd-flex align-items-center justify-content-center',
                 cellRenderer: (params) => {
                     const isChecked = params.value == 1 ? 'checked' : '';
-                    const title = params.value == 1 ? 'Hiển thị' : 'Khóa tin';
                     return `
-                        <div id="#">
-                            <a href="javascript:void(0);" title="${title}">
-                                <div class="d-flex align-items-center h-100">
-                                    <label class="switch">
-                                        <input type="checkbox" onclick="handleConfirm(this, ${params.data.id})" ${isChecked}>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </a>
-                        </div>
+                        <label class="switch">
+                            <input type="checkbox" onclick="handleConfirm(this, ${params.data.id})" ${isChecked}>
+                            <span class="slider round"></span>
+                        </label>
                     `;
                 }
             },
             {
                 field: 'description',
                 headerName: 'Mô tả',
-                filter: false,
-                autoHeight: true,
-                minWidth: 200,
-                cellClass: 'd-flex align-items-center',
-                cellRenderer: (params) => {
-                    return `
-                    <span class="text-dark">
-                        ${params.value}
-                    </span>`;
-                }
-            },
-            {
-                field: 'active',
-                headerName: 'Actions',
-                minWidth: 110,
-                filter: false,
-                cellClass: 'd-flex align-items-center justify-content-center',
-                cellRenderer: (params) => {
-                    if (!params.data.product_main_id) {
-                        return `
-                            <a href="<?php echo URL_ADMIN ?>apps-market/edit/id=${params.data.id}" title="edit"
-                                class="on-default edit-row mr-2" data-toggle="tooltip"
-                                data-placement="top" title="" data-original-title="Edit"
-                                style="cursor: pointer;">
-                                    <span class="material-icons fs-5">
-                                    mode
-                                    </span>
-                            </a>
-                            <a href="javascript:myFunction(${params.data.id})" title="delete" 
-                                class="on-default edit-row mr-2" data-toggle="tooltip"
-                                data-placement="top" title="" data-original-title="Edit"
-                                style="cursor: pointer;">
-                                    <span class="material-icons fs-5">
-                                        delete
-                                    </span>
-                            </a>
-                        `;
-                    }
-                }
+                minWidth: 200
             },
         ],
-
         defaultColDef: {
             flex: 1,
             filter: true,
             floatingFilter: true,
             sortable: true,
-            resizable: true,
+            resizable: true
         },
-        sideBar: {
-            toolPanels: ["columns", "filters"],
-        },
-        paginationPageSize: 100,
-        rowData: <?php echo json_encode($listAppsMarket) ?>,
+        paginationPageSize: 10,
         pagination: true,
-        dataTypeDefinitions: {
-            object: {
-                baseDataType: 'object',
-                extendsDataType: 'object',
-                valueParser: (params) => ({
-                    name: params.newValue
-                }),
-                valueFormatter: (params) =>
-                    params.value == null ? '' : params.value.name,
-            },
-        },
+        rowData: <?php echo json_encode($listAppsMarket) ?>,
     };
-    // setup the grid after the page has finished loading
+
     document.addEventListener('DOMContentLoaded', function() {
         var gridDiv = document.querySelector('#myGrid');
         new agGrid.Grid(gridDiv, gridOptions);
     });
-
-    // function deleteExtention(id) {
-    //     jQuery.ajax({
-    //         type: "POST",
-    //         url: "<?php //echo URL_ADMIN . 'apps-market/deleteExtention'; 
-                        ?>",
-    //         cache: false,
-    //         data: ({
-    //             id: id
-    //         }),
-    //         success: function() {
-    //             location.reload()
-    //         }
-    //     });
-    // }
-    // // confirm
-    // function myFunction(id) {
-    //     let confirmed = confirm('Bạn chắc chắn muốn xóa tiện ích này?');
-    //     if (confirmed) {
-    //         deleteExtention(id);
-    //     }
-    // }
-
-    // function showview(elm, id) {
-    //     jQuery.ajax({
-    //         type: "POST",
-    //         url: "<?php //echo URL_ADMIN . 'apps-market/showview'; 
-                        ?>",
-    //         cache: false,
-    //         data: ({
-    //             showview: elm.checked ? 1 : 0,
-    //             id: id
-    //         }),
-    //         success: function() {
-    //             // location.reload();  
-    //         }
-    //     });
-    // }
-    // // confirm
-    // function handleConfirm(elm, id) {
-    //     let isChecked = elm.checked;
-    //     let confirmed = confirm('Bạn chắc chắn muốn ẩn?');
-    //     if (!confirmed) {
-    //         elm.checked = !isChecked;
-    //     } else {
-    //         showview(elm, id);
-    //     }
-    // }
 </script>
