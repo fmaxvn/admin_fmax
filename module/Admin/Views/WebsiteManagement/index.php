@@ -17,6 +17,7 @@
     <table class="table table-striped table-hover">
         <thead>
         <tr>
+            <th>STT</th>
             <th>Domain</th>
             <th>Database Name</th>
             <th>Tên Template</th>
@@ -26,8 +27,10 @@
         </thead>
         <tbody>
         <?php if (!empty($domain)): ?>
+            <?php $counter = 1;?>
             <?php foreach ($domain as $val): ?>
                 <tr>
+                    <td><?= $counter++ ?></td>
                     <td><?= htmlspecialchars($val['domain'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($val['database_name'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($val['template_name'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
