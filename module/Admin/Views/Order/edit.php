@@ -38,7 +38,6 @@
         width: 100%;
     }
 </style>
-
 <div class="edit-cart-container">
     <h3>Chỉnh Sửa Đơn Hàng</h3>
 
@@ -52,6 +51,34 @@
         </div>
 
         <div class="row">
+            <h6 class="fw-bold">Thông tin website</h6>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="code">Tên domain</label>
+                    <input type="text" class="form-control" value="<?= $infoDomain['domain'] ?>" disabled>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="total_price">Tên database</label>
+                    <input type="text" class="form-control" value="<?= $infoDomain['database_name'] ?>" disabled>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_status">Trạng thái Public</label>
+                    <select class="form-select" id="id_status" name="id_status" disabled>
+                        <option value="1" <?= ($infoDomain['public_website'] == 1) ? 'selected' : '' ?>>Đã public</option>
+                        <option value="0" <?= ($infoDomain['public_website'] == 0) ? 'selected' : '' ?>>Chưa public</option>
+                    </select>
+                    <?php if (!empty($errors['id_status'])): ?>
+                        <small class="error"><?= htmlspecialchars(implode(', ', $errors['id_status'])) ?></small>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+
+            <hr>
             <!-- Hàng 1 -->
             <div class="col-md-4">
                 <div class="form-group">

@@ -12,6 +12,7 @@ class OrderController extends ViewHelper
     private $table = "jp_cart_global";
     private $tableCartDetail = "jp_cart_detail_global";
     private $tableStatus = "jp_cart_status_global";
+    private $tableDomain = "jp_domain";
 
     public function index()
     {
@@ -76,12 +77,14 @@ class OrderController extends ViewHelper
         $db = new DBHandler($this->table);
         $dbCartDetail = new DBHandler($this->tableCartDetail);
         $dbStatus = new DBHandler($this->tableStatus);
+        $dbDomain = new DBHandler($this->tableDomain);
         $view = new ViewHelper();
         $params = $this->getParams();
         $cartId = $params['id'];
         // ✅ **Truy vấn danh sách thành viên với các cột cần thiết**
         $cartGlobal = $db->getOne(['id' => $cartId]);
 
+        $data['infoDomain'] = $dbDomain->getOne(['id' => $cartGlobal['id_domain']]);
         // Lấy thông tin list đơn hàng chi tiết từ database
         $listCartDetail = $dbCartDetail->getList(['id_cart_global' => $cartId], [
             'columns' => 'id, id_cart_global, name, qty, price, last_payment_date, next_renewal_date, id_payment'
@@ -149,11 +152,10 @@ class OrderController extends ViewHelper
             ]);
         }
 
+        $data['cartGlobal'] = $cartGlobal;
+        $data['listCartDetail'] = $listCartDetail;
+        $data['cartStatusList'] = $cartStatusList;
         // ✅ Nếu chỉ là GET request, hiển thị form chỉnh sửa
-        return $view->getLayout([
-            'cartGlobal' => $cartGlobal,
-            'cartStatusList' => $cartStatusList,
-            'listCartDetail' => $listCartDetail,
-        ]);
+        return $view->getLayout($data);
     }
 }

@@ -88,7 +88,7 @@ class Validator
                     $this->errors[$field][] = "Mật khẩu phải từ 8-16 ký tự, có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt (!@#$%^&*()_+<>?).";
                 }
                 break;
-            case 'in': // Kiểm tra giá trị có trong danh sách cho phép (VD: sex = 0,1)
+            case 'in': // Kiểm tra giá trị có trong danh sách cho phép (VD: sex = 0,1) , VD: 'type' => ['required', 'in:0,1'],
                 if (!in_array($value, explode(',', $ruleValue))) {
                     $this->errors[$field][] = "Trường $field phải là một trong các giá trị: $ruleValue.";
                 }
