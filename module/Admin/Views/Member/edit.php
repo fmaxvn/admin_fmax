@@ -83,67 +83,70 @@
         margin-bottom: 10px;
     }
 </style>
-<form action="" method="POST" enctype="multipart/form-data" class="edit-form">
-    <div class="form-group">
-        <label for="fullname">Họ và tên</label>
-        <input type="text" class="form-control" id="fullname" name="fullname"
-            value="<?= htmlspecialchars($old['fullname'] ?? $member['fullname'] ?? '') ?>" required>
-        <?php if (!empty($errors['fullname'])): ?>
-            <small class="error"><?= htmlspecialchars(implode(', ', $errors['fullname'])) ?></small>
-        <?php endif; ?>
-    </div>
+<div class="row">
+    <div class="col-6 mx-auto">
+        <form action="" method="POST" enctype="multipart/form-data" class="edit-form">
+            <div class="form-group">
+                <label for="fullname">Họ và tên</label>
+                <input type="text" class="form-control" id="fullname" name="fullname"
+                    value="<?= htmlspecialchars($old['fullname'] ?? $member['fullname'] ?? '') ?>" required>
+                <?php if (!empty($errors['fullname'])): ?>
+                    <small class="error"><?= htmlspecialchars(implode(', ', $errors['fullname'])) ?></small>
+                <?php endif; ?>
+            </div>
 
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" name="email"
-            value="<?= htmlspecialchars($old['email'] ?? $member['email'] ?? '') ?>" required>
-        <?php if (!empty($errors['email'])): ?>
-            <small class="error"><?= htmlspecialchars(implode(', ', $errors['email'])) ?></small>
-        <?php endif; ?>
-    </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                    value="<?= htmlspecialchars($old['email'] ?? $member['email'] ?? '') ?>" required>
+                <?php if (!empty($errors['email'])): ?>
+                    <small class="error"><?= htmlspecialchars(implode(', ', $errors['email'])) ?></small>
+                <?php endif; ?>
+            </div>
 
-    <div class="form-group">
-        <label for="mobile">Số điện thoại</label>
-        <input type="text" class="form-control" id="mobile" name="mobile"
-            value="<?= htmlspecialchars($old['mobile'] ?? $member['mobile'] ?? '') ?>">
-        <?php if (!empty($errors['mobile'])): ?>
-            <small class="error"><?= htmlspecialchars(implode(', ', $errors['mobile'])) ?></small>
-        <?php endif; ?>
-    </div>
+            <div class="form-group">
+                <label for="mobile">Số điện thoại</label>
+                <input type="text" class="form-control" id="mobile" name="mobile"
+                    value="<?= htmlspecialchars($old['mobile'] ?? $member['mobile'] ?? '') ?>">
+                <?php if (!empty($errors['mobile'])): ?>
+                    <small class="error"><?= htmlspecialchars(implode(', ', $errors['mobile'])) ?></small>
+                <?php endif; ?>
+            </div>
 
-    <div class="form-group">
-        <label for="birthday">Ngày sinh</label>
-        <input type="date" class="form-control" id="birthday" name="birthday"
-            value="<?= htmlspecialchars($old['birthday'] ?? $member['birthday'] ?? '') ?>">
-        <?php if (!empty($errors['birthday'])): ?>
-            <small class="error"><?= htmlspecialchars(implode(', ', $errors['birthday'])) ?></small>
-        <?php endif; ?>
-    </div>
+            <div class="form-group">
+                <label for="birthday">Ngày sinh</label>
+                <input type="date" class="form-control" id="birthday" name="birthday"
+                    value="<?= htmlspecialchars($old['birthday'] ?? $member['birthday'] ?? '') ?>">
+                <?php if (!empty($errors['birthday'])): ?>
+                    <small class="error"><?= htmlspecialchars(implode(', ', $errors['birthday'])) ?></small>
+                <?php endif; ?>
+            </div>
 
-    <div class="form-group">
-        <label for="sex">Giới tính</label>
-        <select class="form-control" id="sex" name="sex">
-            <option value="0" <?= ((isset($old['sex']) ? $old['sex'] : $member['sex']) == '0') ? 'selected' : '' ?>>Nam</option>
-            <option value="1" <?= ((isset($old['sex']) ? $old['sex'] : $member['sex']) == '1') ? 'selected' : '' ?>>Nữ</option>
-        </select>
-        <?php if (!empty($errors['sex'])): ?>
-            <small class="error"><?= htmlspecialchars(implode(', ', $errors['sex'])) ?></small>
-        <?php endif; ?>
-    </div>
-    <div class="form-group">
-        <label>Avatar</label><br>
-        <?php if (!empty($member['image'])): ?>
-            <img src="<?= $this->getImageUrl($member['image']) ?>" alt="Avatar" class="avatar-preview"><br>
-            <input type="checkbox" name="remove_avatar" value="1"> Xóa avatar
-        <?php endif; ?>
-        <input type="file" class="form-control-file" name="avatar">
-        <?php if (!empty($errors['avatar'])): ?>
-            <small class="error"><?= htmlspecialchars(implode(', ', $errors['avatar'])) ?></small>
-        <?php endif; ?>
-    </div>
+            <div class="form-group">
+                <label for="sex">Giới tính</label>
+                <select class="form-control" id="sex" name="sex">
+                    <option value="0" <?= ((isset($old['sex']) ? $old['sex'] : $member['sex']) == '0') ? 'selected' : '' ?>>Nam</option>
+                    <option value="1" <?= ((isset($old['sex']) ? $old['sex'] : $member['sex']) == '1') ? 'selected' : '' ?>>Nữ</option>
+                </select>
+                <?php if (!empty($errors['sex'])): ?>
+                    <small class="error"><?= htmlspecialchars(implode(', ', $errors['sex'])) ?></small>
+                <?php endif; ?>
+            </div>
+            <div class="form-group">
+                <label>Avatar</label><br>
+                <?php if (!empty($member['image'])): ?>
+                    <img src="<?= $this->getImageUrl($member['image']) ?>" alt="Avatar" class="avatar-preview"><br>
+                <?php endif; ?>
+                <input type="file" class="form-control-file" name="avatar">
+                <?php if (!empty($errors['avatar'])): ?>
+                    <small class="error"><?= htmlspecialchars(implode(', ', $errors['avatar'])) ?></small>
+                <?php endif; ?>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Cập nhật</button>
-</form>
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+        </form>
+    </div>
+</div>
 
 <script>
     function validateForm() {

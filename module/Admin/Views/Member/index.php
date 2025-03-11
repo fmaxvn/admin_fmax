@@ -7,7 +7,7 @@
 <h2>Danh sách tài khoản</h2>
 
 <div class="d-flex justify-content-between mb-4">
-    <div>
+    <!-- <div>
         <form method="GET" action="/admin/member/index" class="d-flex">
             <input type="text" class="form-control me-2" placeholder="Tìm kiếm..." name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
             <select name="sort" class="form-select me-2" style="width: 150px;">
@@ -16,7 +16,7 @@
             </select>
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
-    </div>
+    </div> -->
     <!-- <a href="/admin/member/add" class="btn btn-success">Thêm mới</a> -->
 </div>
 <div class="container-fluid px-0">

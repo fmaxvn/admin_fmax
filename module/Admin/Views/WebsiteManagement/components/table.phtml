@@ -18,7 +18,7 @@
                 filter: 'agTextColumnFilter',
                 cellClass: 'd-flex align-items-center',
                 cellRenderer: (params) =>
-                    `<a class="text-decoration-none text-dark" href="/admin/domain-extentions/edit/id/${params.data.id}">${params.value}</a>`
+                    `<a class="text-decoration-none text-dark" href="/admin/website-management/edit/id/${params.data.id}">${params.value}</a>`
             },
             {
                 field: 'database_name',
@@ -48,7 +48,7 @@
                 cellClass: 'd-flex align-items-center justify-content-center',
                 minWidth: 200,
                 cellRenderer: (params) => {
-                    return `<a class="text-decoration-none text-dark" href="/admin/website-management//edit/id/${params.data.id}"><i class="ph-bold ph-pen fs-5"></i></a>`;
+                    return `<a class="text-decoration-none text-dark" href="/admin/website-management/edit/id/${params.data.id}"><i class="ph-bold ph-pen fs-5"></i></a>`;
                 }
 
             },

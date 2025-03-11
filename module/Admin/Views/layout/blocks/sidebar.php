@@ -145,7 +145,7 @@
         </li>
         <li>
             <a href="<?= BASE_URL ?>/admin/member/index" class="d-flex justify-content-between align-items-center">
-                <span><i class="me-2 ph-bold ph-users"></i> Quản lý khách hàng</span> </span>
+                <span><i class="me-2 ph-bold ph-user-list"></i> Quản lý khách hàng</span> </span>
             </a>
         </li>
     </ul>

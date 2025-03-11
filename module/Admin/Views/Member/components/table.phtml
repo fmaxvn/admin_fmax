@@ -18,7 +18,7 @@
                 filter: 'agNumberColumnFilter',
                 cellClass: 'd-flex align-items-center',
                 cellRenderer: (params) =>
-                    `<a class="text-decoration-none text-dark" href="/admin/domain-extentions/edit/id/${params.data.id}">
+                    `<a class="text-decoration-none text-dark" href="/admin/member/edit/id/${params.data.id}">
                          <img src="${params.data.image}" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
 
                     </a>`
@@ -30,7 +30,7 @@
                 filter: 'agTextColumnFilter',
                 cellClass: 'd-flex align-items-center',
                 cellRenderer: (params) =>
-                    `<a class="text-decoration-none text-dark" href="/admin/domain-extentions/edit/id/${params.data.id}">${params.value}</a>`
+                    `<a class="text-decoration-none text-dark" href="/admin/member/edit/id/${params.data.id}">${params.value}</a>`
             },
             {
                 field: 'email',
