@@ -13,16 +13,17 @@
 
 <div class="d-flex justify-content-between mb-4">
     <div>
-        <form method="GET" action="/admin/apps-market/index" class="d-flex">
+        <form method="GET" action="/admin/payment-shipping/index" class="d-flex">
             <input type="text" class="form-control me-2" placeholder="Tìm kiếm..." name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
             <select name="filter" class="form-select me-2" style="width: 150px;">
                 <option value="">Tất cả</option>
-                <option value="0" <?= (($_GET['filter'] ?? '') == '0') ? 'selected' : '' ?>>Nền tảng</option>
-                <option value="1" <?= (($_GET['filter'] ?? '') == '1') ? 'selected' : '' ?>>Tiện ích</option>
+                <option value="4" <?= (($_GET['filter'] ?? '') == '4') ? 'selected' : '' ?>>Đi bộ</option>
+                <option value="1" <?= (($_GET['filter'] ?? '') == '1') ? 'selected' : '' ?>>GHTK</option>
             </select>
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
     </div>
+    <a id="exportLink" href="/admin/payment-shipping/export" class="btn btn-success">Xuất file</a>
 </div>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
@@ -34,6 +35,9 @@
                 <th>Loại</th>
                 <th>Tổng tiền</th>
                 <th>Đăng đơn</th>
+                <th>Website</th>
+                <th>Tên khách hàng</th>
+                <th>Tài khoản</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -47,7 +51,7 @@
                         <td><a href="/admin/payment-shipping/edit/id/<?= $val['id'] ?>"><?= htmlspecialchars($val['code_shipping'] ?? '', ENT_QUOTES, 'UTF-8') ?></a></td>
                         <td><?= htmlspecialchars($val['code_cart'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($val['name'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($val['total'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= number_format($val['total'], 0, ',', '.') ?> đ</td>
                         <td>
                             <?php
                             $typeLabels = [
@@ -57,6 +61,9 @@
                             echo htmlspecialchars($typeLabels[$val['order_status']] ?? 'N/A', ENT_QUOTES, 'UTF-8');
                             ?>
                         </td>
+                        <td><?= htmlspecialchars($val['domain'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($val['fullname'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($val['username'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <div class="btn-group">
                                 <a href="/admin/payment-shipping/edit/id/<?= $val['id'] ?>" class="btn btn-sm btn-warning">Xem chi tiết</a>
@@ -119,4 +126,18 @@
             });
         });
     });
+
+    function updateExportLink() {
+        const searchParam = new URLSearchParams(window.location.search);
+        let exportUrl = "/admin/payment-shipping/export";
+
+        if (searchParam.toString()) {
+            exportUrl += "?" + searchParam.toString();
+        }
+
+        document.getElementById("exportLink").setAttribute("href", exportUrl);
+    }
+
+    // ✅ Cập nhật đường dẫn ngay khi trang load để giữ đúng tham số hiện tại
+    document.addEventListener("DOMContentLoaded", updateExportLink);
 </script>

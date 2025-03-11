@@ -29,9 +29,10 @@ class PaymentShippingController extends ViewHelper
         $conditions = [];
         if (!empty($search)) {
             $conditions['name'] = ['LIKE', "%$search%"];
+            // $conditions['domain'] = ['LIKE', "%$search%"];
         }
         if (!empty($filter)) {
-            $conditions['type'] = $filter; // '0' = Nền tảng, '1' = Tiện ích
+            $conditions['id_dvvc'] = $filter; // '4' = Đi bộ, '1' = GTTK
         }
 
         // ✅ **Tùy chọn sắp xếp**
@@ -43,6 +44,11 @@ class PaymentShippingController extends ViewHelper
             'order_by' => ["type asc, id asc"],
             'limit' => $limit,
             'offset' => $offset,
+            'columns' => 'jp_payment_shipping.*, jp_domain.domain AS domain, jp_member.username AS username, jp_member.fullname AS fullname', // Định danh id cụ thể
+            'joins' => [
+                ['LEFT JOIN', 'jp_domain', 'jp_domain.id = jp_payment_shipping.id_domain'], // JOIN bảng jp_domain
+                ['LEFT JOIN', 'jp_member', 'jp_member.id = jp_payment_shipping.id_member'] // JOIN bảng jp_member
+            ]
         ];
         // ✅ **Truy vấn danh sách domain**
         $data["listPaymentShipping"] = $db->getList($conditions, $options);
@@ -158,6 +164,98 @@ class PaymentShippingController extends ViewHelper
             echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật']);
         }
 
+        exit();
+    }
+
+    public function export()
+    {
+        // ✅ Kết nối Database
+        $db = new DBHandler($this->table);
+
+        // ✅ Lấy tham số từ URL
+        $search = $_GET['search'] ?? ''; // Tìm kiếm theo tên
+        $sort = $_GET['sort'] ?? 'desc'; // Sắp xếp (asc/desc)
+        $filter = $_GET['filter'] ?? '';
+        // ✅ Xây dựng điều kiện truy vấn
+        $conditions = [];
+        if (!empty($search)) {
+            $conditions['code'] = ['LIKE', "%$search%"];
+        }
+        if (!empty($filter)) {
+            $conditions['id_dvvc'] = $filter; // '4' = Đi bộ, '1' = GTTK
+        }
+
+        $options = [
+            'order_by' => ["type asc, id asc"],
+            'columns' => 'jp_payment_shipping.*, jp_domain.domain AS domain, jp_member.username AS username, jp_member.fullname AS fullname', // Định danh id cụ thể
+            'joins' => [
+                ['LEFT JOIN', 'jp_domain', 'jp_domain.id = jp_payment_shipping.id_domain'], // JOIN bảng jp_domain
+                ['LEFT JOIN', 'jp_member', 'jp_member.id = jp_payment_shipping.id_member'] // JOIN bảng jp_member
+            ]
+        ];
+        // ✅ **Truy vấn danh sách domain**
+        $listPaymentShipping = $db->getList($conditions, $options);
+        // ✅ Header để trình duyệt nhận diện là file Excel `.xlsx`
+        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        header("Content-Disposition: attachment; filename=DanhSach_DonHang_DVVC.xls");
+        header("Cache-Control: max-age=0");
+
+        // ✅ Mở output stream
+        $output = fopen('php://output', 'w');
+
+        // ✅ Thêm UTF-8 BOM để tránh lỗi font
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        // ✅ Tạo bảng HTML để Excel nhận diện
+        echo "<html xmlns:x='urn:schemas-microsoft-com:office:excel'>";
+        echo "<head>";
+        echo "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>";
+        echo "<style>
+                body { font-family: Arial, sans-serif; }
+                table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; font-family: Arial, sans-serif; }
+                th { background-color: #B3D9FF; font-weight: bold; font-size: 14px; font-family: Arial, sans-serif; }
+              </style>";
+        echo "</head>";
+        echo "<body>";
+        echo "<table>";
+
+        // ✅ Xuất tiêu đề cột
+        echo "<tr>";
+        echo "<th>STT</th>";
+        echo "<th>Mã thanh toán</th>";
+        echo "<th>Mã đơn hàng đăng đơn</th>";
+        echo "<th>Loại</th>";
+        echo "<th>Tổng tiền</th>";
+        echo "<th>Đăng đơn</th>";
+        echo "<th>Website</th>";
+        echo "<th>Tên khách hàng</th>";
+        echo "<th>Tài khoản</th>";
+        echo "</tr>";
+
+        // ✅ Xuất dữ liệu
+        $stt = 1;
+        foreach ($listPaymentShipping as $row) {
+            $orderStatus = !empty($row['order_status']) ? "Đã đăng đơn" : "Chưa đăng đơn";
+            echo "<tr>";
+            echo "<td>{$stt}</td>";
+            echo "<td>{$row['code_shipping']}</td>";
+            echo "<td>{$row['code_cart']}</td>";
+            echo "<td>{$row['name']}</td>";
+            echo "<td>{$row['total']}</td>";
+            echo "<td style='text-align: right;'>{$orderStatus}</td>";
+            echo "<td>{$row['domain']}</td>";
+            echo "<td>{$row['fullname']}</td>";
+            echo "<td>{$row['username']}</td>";
+            echo "</tr>";
+            $stt++;
+        }
+
+        echo "</table>";
+        echo "</body>";
+        echo "</html>";
+
+        fclose($output);
         exit();
     }
 }

@@ -164,4 +164,90 @@ class OrderController extends ViewHelper
         // ✅ Trả về View với đầy đủ `$data`
         return $view->getLayout($data);
     }
+
+    public function export()
+    {
+        // ✅ Kết nối Database
+        $db = new DBHandler($this->table);
+        $dbStatus = new DBHandler($this->tableStatus);
+        $dbDomain = new DBHandler($this->tableDomain);
+
+        // ✅ Lấy tham số từ URL
+        $search = $_GET['search'] ?? ''; // Tìm kiếm theo tên
+        $sort = $_GET['sort'] ?? 'desc'; // Sắp xếp (asc/desc)
+        $filter = $_GET['filter'] ?? '';
+        // ✅ Xây dựng điều kiện truy vấn
+        $conditions = [];
+        if (!empty($search)) {
+            $conditions['code'] = ['LIKE', "%$search%"];
+        }
+
+        $options = [
+            'order_by' => ["id $sort"],
+            'columns' => 'jp_cart_global.*, jp_domain.domain AS domain, jp_member.username AS username, jp_member.fullname AS fullname',
+            'joins' => [
+                ['LEFT JOIN', 'jp_domain', 'jp_domain.id = jp_cart_global.id_domain'],
+                ['LEFT JOIN', 'jp_member', 'jp_member.id = jp_cart_global.id_member']
+            ]
+        ];
+
+        $cartGlobal = $db->getList($conditions, $options);
+
+        // ✅ Header để trình duyệt nhận diện là file Excel `.xlsx`
+        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        header("Content-Disposition: attachment; filename=DanhSach_DonHang.xlsx");
+        header("Cache-Control: max-age=0");
+
+        // ✅ Mở output stream
+        $output = fopen('php://output', 'w');
+
+        // ✅ Thêm UTF-8 BOM để tránh lỗi font
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        // ✅ Tạo bảng HTML để Excel nhận diện
+        echo "<html xmlns:x='urn:schemas-microsoft-com:office:excel'>";
+        echo "<head>";
+        echo "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>";
+        echo "<style>
+                 body { font-family: Arial, sans-serif; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                th { background-color: #D9EAD3; font-weight: bold; font-size: 14px; }
+              </style>";
+        echo "</head>";
+        echo "<body>";
+        echo "<table>";
+
+        // ✅ Xuất tiêu đề cột
+        echo "<tr>";
+        echo "<th>STT</th>";
+        echo "<th>Mã đơn hàng</th>";
+        echo "<th>Tên tài khoản</th>";
+        echo "<th>Username</th>";
+        echo "<th>Tên website</th>";
+        echo "<th>Tổng tiền</th>";
+        echo "</tr>";
+
+        // ✅ Xuất dữ liệu
+        $stt = 1;
+        foreach ($cartGlobal as $row) {
+            // $totalPriceFormatted = number_format($row['total_price'], 0, ',', '.') . " đ";
+            echo "<tr>";
+            echo "<td>{$stt}</td>";
+            echo "<td>{$row['code']}</td>";
+            echo "<td>{$row['fullname']}</td>";
+            echo "<td>{$row['username']}</td>";
+            echo "<td>{$row['domain']}</td>";
+            echo "<td style='text-align: right;'>{$row['total_price']}</td>";
+            echo "</tr>";
+            $stt++;
+        }
+
+        echo "</table>";
+        echo "</body>";
+        echo "</html>";
+
+        fclose($output);
+        exit();
+    }
 }
