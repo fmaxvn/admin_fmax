@@ -42,20 +42,21 @@
     <h3>Chỉnh Sửa</h3>
     <hr>
 
-
     <!-- ✅ FORM CHỈNH SỬA ĐƠN HÀNG -->
     <form action="" method="post">
         <div class="d-flex justify-content-end mt-4">
-            <button type="button" class="btn btn-danger me-3" style="width: max-content;" onclick="confirmAndDelete(<?php echo $domainExtentions['id']; ?>)">Xóa</button>
             <button type="submit" class="btn btn-save" style="width: max-content;">Lưu thay đổi</button>
         </div>
 
+        <?php if (!empty($success)): ?>
+            <div class="alert alert-success my-3" style="width: max-content;"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
         <div class="row">
             <div class="mb-3 col-6 mx-auto">
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label class="form-label">Tên tên domain</label>
-                        <input type="text" class="form-control domain__name" name="name" value="<?php echo $domainExtentions['name']; ?>">
+                        <input type="text" class="form-control domain__name" name="name">
                         <?php if (!empty($errors['name'])): ?>
                             <small class="error text-danger"><?= htmlspecialchars(implode(', ', $errors['name'])) ?></small>
                         <?php endif; ?>
@@ -63,13 +64,13 @@
                     <div class="col-6 mb-3">
                         <label class="form-label" for="priority">Ưu tiên</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="priority" id="priority" value="<?php echo !empty($domainExtentions['priority']) ? 1 : 0; ?>"
+                            <input class="form-check-input" type="checkbox" name="priority" id="priority"
                                 <?= isset($domainExtentions['priority']) && $domainExtentions['priority'] == 1 ? 'checked' : '' ?>>
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <label class="form-label">Giá bán</label>
-                        <input type="number" class="form-control domain__price" name="price" value="<?php echo $domainExtentions['price']; ?>">
+                        <input type="number" class="form-control domain__price" name="price">
                         <?php if (!empty($errors['price'])): ?>
                             <small class="error text-danger"><?= htmlspecialchars(implode(', ', $errors['price'])) ?></small>
                         <?php endif; ?>
@@ -77,8 +78,8 @@
                     <div class="col-6 mb-3">
                         <label class=" form-label">Thuộc tên miền</label>
                         <select class="form-select" id="id_status" name="type">
-                            <option value="1" <?= ($domainExtentions['type'] == 1) ? 'selected' : '' ?>>VN</option>
-                            <option value="0" <?= ($domainExtentions['type'] == 2) ? 'selected' : '' ?>>Quốc tế</option>
+                            <option value="1" selected>VN</option>
+                            <option value="0">Quốc tế</option>
                         </select>
                         <?php if (!empty($errors['type'])): ?>
                             <small class="error"><?= htmlspecialchars(implode(', ', $errors['type'])) ?></small>
@@ -89,22 +90,22 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-check d-flex align-items-center mb-3">
-                            <input class="form-check-input me-2" type="radio" name="percent" id="percent1" value="option1" <?php echo !empty($domainExtentions['percent']) || (empty($domainExtentions['percent']) && empty($domainExtentions['price_km'])) ? "checked" : ""; ?>>
+                            <input class="form-check-input me-2" type="radio" name="percent" id="percent1" value="option1" checked>
                             <label class="form-check-label" for="percent1">Theo phần trăm</label>
                         </div>
                         <div class="input-group">
-                            <input type="number" class="form-control" name="percent" id="percent_input" value="<?php echo $domainExtentions['percent']; ?>">
+                            <input type="number" class="form-control" name="percent" id="percent_input" value="">
                             <span class="input-group-text">%</span>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="form-check d-flex align-items-center mb-3">
-                            <input class="form-check-input me-2" type="radio" name="percent" id="priceKM2" value="option2" <?php echo !empty($domainExtentions['price_km']) ? "checked" : ""; ?>>
+                            <input class="form-check-input me-2" type="radio" name="price_km" id="priceKM2" value="option2">
                             <label class="form-check-label" for="priceKM2">Theo giá</label>
                         </div>
                         <div class="input-group">
-                            <input type="number" class="form-control" name="price_km" id="price_km_input" value="<?php echo $domainExtentions['price_km']; ?>" disabled>
+                            <input type="number" class="form-control" name="price_km" id="price_km_input" disabled>
                             <span class="input-group-text">đ</span>
                         </div>
                     </div>
@@ -149,34 +150,4 @@
             this.value = this.checked ? 1 : 0;
         });
     });
-
-    function confirmAndDelete(id) {
-        // Hiển thị hộp thoại xác nhận
-        if (!confirm("Bạn có chắc chắn muốn xóa mục này không?")) {
-            return; // Nếu hủy, thoát khỏi hàm
-        }
-
-        // Tạo FormData để gửi request
-        const formData = new FormData();
-        formData.append('id', id);
-
-        // Gửi request xóa bằng Fetch API
-        fetch('/admin/domain-extentions/delete', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert(data.message || "Xóa thành công!");
-                    location.href = '/admin/domain-extentions/index';
-                } else {
-                    alert(data.message || "Có lỗi xảy ra khi xóa!");
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi:', error);
-                alert("Đã xảy ra lỗi khi gửi yêu cầu xóa!");
-            });
-    }
 </script>

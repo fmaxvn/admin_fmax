@@ -51,8 +51,49 @@ class DomainExtentionsController extends ViewHelper
         return $this->getLayout($data);
     }
 
+    /**
+     * Hàm thêm mới
+     * @return string
+     */
+    public function add()
+    {
+        $view = new ViewHelper();
+        $data = [];
 
+        // Xử lý form submit
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $db = new DBHandler($this->table);
 
+            // Validate dữ liệu
+            $validator = new Validator();
+            $validator->validate($_POST, [
+                'name' => ['required'],
+                'price' => ['required', 'numeric'],
+                'type' => ['required', 'in:0,1'],
+            ]);
+
+            if ($validator->fails()) {
+                $data['errors'] = $validator->errors();
+                $data['old'] = $_POST; // Giữ lại dữ liệu đã nhập
+                return $view->getLayout($data);
+            }
+
+            // Insert trực tiếp dữ liệu POST vào database
+            if ($db->insert($_POST)) {
+                $data['success'] = "Thêm mới domain thành công.";
+            } else {
+                $data['error'] = "Có lỗi xảy ra khi thêm mới. Vui lòng thử lại.";
+                $data['old'] = $_POST; // Giữ lại dữ liệu đã nhập
+            }
+        }
+
+        return $view->getLayout($data);
+    }
+
+    /**
+     * hàm chỉnh sửa
+     * @return string
+     */
     public function edit()
     {
         $db = new DBHandler($this->table);
@@ -123,6 +164,11 @@ class DomainExtentionsController extends ViewHelper
         // ✅ Nếu chỉ là GET request, hiển thị form chỉnh sửa
         return $view->getLayout($data);
     }
+
+    /**
+     * hàm cập nhật thứ tự ưu tiên
+     * @return never
+     */
     public function togglePriority()
     {
         // Kết nối Database
@@ -168,5 +214,30 @@ class DomainExtentionsController extends ViewHelper
         }
 
         exit();
+    }
+
+    /**
+     * Xóa domain
+     */
+    public function delete()
+    {
+        // Chỉ chấp nhận POST request để tránh CSRF
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 403 Forbidden');
+            echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+            exit;
+        }
+        $domainId = $_POST['id'] ?? '';
+        $db = new DBHandler($this->table);
+
+        // Lấy thông tin user để xóa avatar nếu có
+        $domainEx = $db->getOne(['id' => $domainId]);
+
+        if ($domainEx && $db->delete(['id' => $domainId])) {
+            echo json_encode(['status' => 'success', 'message' => 'Xóa user thành công.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi xóa.']);
+        }
+        exit;
     }
 }

@@ -18,7 +18,7 @@
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
     </div>
-    <!-- <a href="/admin/member/add" class="btn btn-success">Thêm mới</a> -->
+    <a href="/admin/domain-extentions/add" class="btn btn-success">Thêm mới</a>
 </div>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
