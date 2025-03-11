@@ -37,13 +37,13 @@ class PaymentShippingController extends ViewHelper
 
         // ✅ **Tùy chọn sắp xếp**
         $pages = $params["page"] ?? 1;
-        $limit = 10; // Số lượng domain trên mỗi trang
-        $offset = ((int)$pages - 1) * $limit;
+        // $limit = 10; // Số lượng domain trên mỗi trang
+        // $offset = ((int)$pages - 1) * $limit;
 
         $options = [
             'order_by' => ["type asc, id asc"],
-            'limit' => $limit,
-            'offset' => $offset,
+            // 'limit' => $limit,
+            // 'offset' => $offset,
             'columns' => 'jp_payment_shipping.*, jp_domain.domain AS domain, jp_member.username AS username, jp_member.fullname AS fullname', // Định danh id cụ thể
             'joins' => [
                 ['LEFT JOIN', 'jp_domain', 'jp_domain.id = jp_payment_shipping.id_domain'], // JOIN bảng jp_domain
@@ -52,6 +52,9 @@ class PaymentShippingController extends ViewHelper
         ];
         // ✅ **Truy vấn danh sách domain**
         $data["listPaymentShipping"] = $db->getList($conditions, $options);
+        foreach ($data["listPaymentShipping"] as $key => $val) {
+            $data["listPaymentShipping"][$key]['status'] = !empty($val['order_status']) ? 'Đã đăng đơn' : 'Chưa đăng đơn';
+        }
         $data["pagination"] = $this->renderPagination(
             $db->countRows($conditions)
         );

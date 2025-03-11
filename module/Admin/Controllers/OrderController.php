@@ -41,12 +41,10 @@ class OrderController extends ViewHelper
             $pages = $params["page"];
         }
         $limit = 10; // Số lượng domain trên mỗi trang
-        $offset = ((int)$pages - 1) * $limit;
+        // $offset = ((int)$pages - 1) * $limit;
 
         $options = [
             'order_by' => ["id $sort"],
-            'limit' => $limit,
-            'offset' => $offset,
             'columns' => 'jp_cart_global.*, jp_domain.domain AS domain, jp_member.username AS username', // Định danh id cụ thể
             'joins' => [
                 ['LEFT JOIN', 'jp_domain', 'jp_domain.id = jp_cart_global.id_domain'], // JOIN bảng jp_domain

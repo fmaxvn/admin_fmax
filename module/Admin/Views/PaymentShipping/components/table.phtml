@@ -6,61 +6,67 @@
         columnDefs: [{
                 field: 'id',
                 headerName: 'STT',
-                minWidth: 50,
-                maxWidth: 100,
+                minWidth: 100,
                 filter: false,
                 cellRenderer: (params) => params.node.rowIndex + 1
             },
             {
-                field: 'images',
-                headerName: 'Avatar',
+                field: 'code_shipping',
+                headerName: 'Mã thanh toán',
                 minWidth: 200,
-                filter: false,
-                cellClass: 'd-flex align-items-center',
-                cellRenderer: (params) =>
-                    `<a class="text-decoration-none text-dark" href="/admin/member/edit/id/${params.data.id}">
-                         <img src="${params.data.image}" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
-
-                    </a>`
-            },
-            {
-                field: 'fullname',
-                headerName: 'Họ tên	',
-                minWidth: 300,
                 filter: 'agTextColumnFilter',
                 cellClass: 'd-flex align-items-center',
                 cellRenderer: (params) =>
-                    `<a class="text-decoration-none text-dark" href="/admin/member/edit/id/${params.data.id}">${params.value}</a>`
+                    `<a class="text-decoration-none text-dark" href="/admin/payment-shipping/edit/id/${params.data.id}">${params.value}</a>`
             },
             {
-                field: 'email',
-                headerName: 'Email',
+                field: 'code_cart',
+                headerName: 'Mã đơn hàng đăng đơn',
+                minWidth: 200,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'name',
+                headerName: 'Loại',
+                minWidth: 150,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'total',
+                headerName: 'Tổng tiền',
+                filter: 'agNumberColumnFilter',
+                minWidth: 200,
+                cellClass: 'd-flex align-items-center',
+            },
+
+            {
+                field: 'status',
+                headerName: 'Đăng đơn',
+                minWidth: 200,
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'domain',
+                headerName: 'Website',
                 minWidth: 400,
                 filter: 'agTextColumnFilter',
                 cellClass: 'd-flex align-items-center',
             },
             {
-                field: 'mobile',
-                headerName: 'Điện thoại',
-                minWidth: 200,
+                field: 'fullname',
+                headerName: 'Tên khách hàng',
+                minWidth: 300,
                 filter: 'agTextColumnFilter',
                 cellClass: 'd-flex align-items-center',
             },
             {
-                field: 'showview',
-                headerName: 'Trạng thái',
-                minWidth: 110,
-                filter: false,
-                cellClass: 'd-flex align-items-center justify-content-center',
-                cellRenderer: (params) => {
-                    const isChecked = params.value == 1 ? 'checked' : '';
-                    return `
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" style="cursor: pointer; box-shadow: none;" type="checkbox" role="switch" 
-                                id="switch-${params.data.id}" ${isChecked} onclick="toggleShowView(${params.data.id}, this)">
-                            </div>
-                        `;
-                }
+                field: 'username',
+                headerName: 'Tài khoản',
+                minWidth: 300,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
             },
             {
                 field: '',
@@ -69,13 +75,7 @@
                 cellClass: 'd-flex align-items-center justify-content-center',
                 minWidth: 200,
                 cellRenderer: (params) => {
-                    return `<a class="text-decoration-none text-dark me-3" href="/admin/member/edit/id/${params.data.id}">
-                                <i class="ph-bold ph-pen fs-5"></i>
-                            </a>
-                            <a class="text-decoration-none text-dark" href="/admin/member/change_password/id/${params.data.id}">
-                                <i class="ph-bold ph-password fs-5"></i>
-                            </a>
-                    `;
+                    return `<a class="text-decoration-none text-dark" href="/admin/payment-shipping/edit/id/${params.data.id}"><i class="ph-bold ph-pen fs-5"></i></a>`;
                 }
 
             },
@@ -89,7 +89,7 @@
         },
         paginationPageSize: 20,
         pagination: true,
-        rowData: <?php echo json_encode($member) ?>,
+        rowData: <?php echo json_encode($listPaymentShipping) ?>,
     };
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -108,10 +108,10 @@
             return;
         }
 
-        fetch('/admin/member/toggleStatus', {
-                method: 'POST',
+        fetch("/admin/apps-market/toggleStatus", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     id: id,
@@ -121,14 +121,14 @@
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
-                    alert("Lỗi khi cập nhật trạng thái!");
-                    this.checked = !this.checked; // Hoàn tác nếu có lỗi
+                    alert("Có lỗi xảy ra khi cập nhật trạng thái.");
+                    element.checked = !element.checked; // Hoàn tác nếu lỗi
                 }
             })
             .catch(error => {
                 console.error("Lỗi:", error);
-                alert("Không thể cập nhật trạng thái.");
-                this.checked = !this.checked; // Hoàn tác nếu có lỗi
+                alert("Có lỗi xảy ra.");
+                element.checked = !element.checked; // Hoàn tác nếu lỗi
             });
     }
 </script>

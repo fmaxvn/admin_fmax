@@ -1,0 +1,113 @@
+<div id="myGrid" style="height:calc(100vh - 270px);" class="ag-theme-alpine mb-3"></div>
+<script src="<?php echo URL_ASSETS ?>/js/ag-grid-enterprise.js"></script>
+<script>
+    let gridApi;
+    const gridOptions = {
+        columnDefs: [{
+                field: 'id',
+                headerName: 'STT',
+                minWidth: 100,
+                filter: false,
+                cellRenderer: (params) => params.node.rowIndex + 1
+            },
+            {
+                field: 'code',
+                headerName: 'Mã đơn hàng',
+                minWidth: 300,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+                cellRenderer: (params) =>
+                    `<a class="text-decoration-none text-dark" href="/admin/order/edit/id/${params.data.id}">${params.value}</a>`
+            },
+            {
+                field: 'domain',
+                headerName: 'Tên website thanh toán',
+                minWidth: 400,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'username',
+                headerName: 'Tên user thanh toán',
+                minWidth: 300,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'status',
+                headerName: 'Trạng thái',
+                minWidth: 200,
+                cellClass: 'd-flex align-items-center',
+            },
+
+            {
+                field: 'total_price',
+                headerName: 'Tổng tiền',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: '',
+                headerName: 'Hành động',
+                filter: false,
+                cellClass: 'd-flex align-items-center justify-content-center',
+                minWidth: 200,
+                cellRenderer: (params) => {
+                    return `<a class="text-decoration-none text-dark" href="/admin/order/edit/id/${params.data.id}"><i class="ph-bold ph-pen fs-5"></i></a>`;
+                }
+
+            },
+        ],
+        defaultColDef: {
+            flex: 1,
+            filter: true,
+            floatingFilter: true,
+            sortable: true,
+            resizable: true
+        },
+        paginationPageSize: 20,
+        pagination: true,
+        rowData: <?php echo json_encode($cartGlobal) ?>,
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var gridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(gridDiv, gridOptions);
+    });
+
+
+    function toggleShowView(id, element) {
+        const newStatus = element.checked ? 1 : 0;
+        const confirmMessage = newStatus ? "Bạn có chắc chắn muốn hiển thị tiện ích này?" : "Bạn có chắc chắn muốn ẩn tiện ích này?";
+
+        // ✅ Hiển thị hộp thoại xác nhận trước khi gửi request
+        if (!confirm(confirmMessage)) {
+            element.checked = !element.checked; // Hoàn tác nếu chọn "Hủy"
+            return;
+        }
+
+        fetch("/admin/apps-market/toggleStatus", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: id,
+                    showview: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert("Có lỗi xảy ra khi cập nhật trạng thái.");
+                    element.checked = !element.checked; // Hoàn tác nếu lỗi
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                alert("Có lỗi xảy ra.");
+                element.checked = !element.checked; // Hoàn tác nếu lỗi
+            });
+    }
+</script>

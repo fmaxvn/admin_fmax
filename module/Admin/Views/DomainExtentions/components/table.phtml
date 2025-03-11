@@ -89,7 +89,7 @@
 
     function toggleShowView(id, element) {
         const newStatus = element.checked ? 1 : 0;
-        const confirmMessage = newStatus ? "Bạn có chắc chắn muốn hiển thị tiện ích này?" : "Bạn có chắc chắn muốn ẩn tiện ích này?";
+        const confirmMessage = newStatus ? "Bạn có chắc chắn muốn hiển thị?" : "Bạn có chắc chắn muốn ẩn?";
 
         // ✅ Hiển thị hộp thoại xác nhận trước khi gửi request
         if (!confirm(confirmMessage)) {
@@ -97,27 +97,28 @@
             return;
         }
 
-        fetch("/admin/apps-market/toggleStatus", {
-                method: "POST",
+        // ✅ Gửi yêu cầu AJAX nếu người dùng xác nhận
+        fetch('/admin/domain-extentions/togglePriority', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json"
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: id,
-                    showview: newStatus
+                    priority: newStatus
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
-                    alert("Có lỗi xảy ra khi cập nhật trạng thái.");
-                    element.checked = !element.checked; // Hoàn tác nếu lỗi
+                    alert("Lỗi khi cập nhật trạng thái!");
+                    this.checked = !this.checked; // Hoàn tác nếu có lỗi
                 }
             })
             .catch(error => {
                 console.error("Lỗi:", error);
-                alert("Có lỗi xảy ra.");
-                element.checked = !element.checked; // Hoàn tác nếu lỗi
+                alert("Không thể cập nhật trạng thái.");
+                this.checked = !this.checked; // Hoàn tác nếu có lỗi
             });
     }
 </script>
