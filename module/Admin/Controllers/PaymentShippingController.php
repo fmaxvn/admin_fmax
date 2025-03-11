@@ -58,8 +58,6 @@ class PaymentShippingController extends ViewHelper
         return $this->getLayout($data);
     }
 
-
-
     public function edit()
     {
         $db = new DBHandler($this->table);

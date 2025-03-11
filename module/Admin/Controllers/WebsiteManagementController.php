@@ -5,12 +5,14 @@ namespace module\Admin\Controllers;
 use Core\Database\DBHandler; // ✅ Load module database
 use Core\Helper\ViewHelper;
 
-class WebsiteManagementController extends ViewHelper{
-    
+class WebsiteManagementController extends ViewHelper
+{
+
     private $table = "jp_domain";
 
-    public function index() {
-        
+    public function index()
+    {
+
         $db = new DBHandler($this->table);
 
         // ✅ **Lấy tham số từ URL**
@@ -31,27 +33,28 @@ class WebsiteManagementController extends ViewHelper{
 
         // ✅ **Tùy chọn sắp xếp**
         $pages = !empty($params["page"]) ? (int)$params["page"] : 1;
-        $limit = 10; // Số lượng domain trên mỗi trang
-        $offset = ((int)$pages - 1) * $limit;
+        // $limit = 10; // Số lượng domain trên mỗi trang
+        // $offset = ((int)$pages - 1) * $limit;
 
         $options = [
             'columns' => 'jp_domain.id,domain, database_name, type_template, folder , jp_template.name AS template_name',
             'order_by' => ["datecreate $sort"],
-            'limit' => $limit,
-            'offset' => $offset,
+            // 'limit' => $limit,
+            // 'offset' => $offset,
             'joins' => [
                 ['LEFT JOIN', 'jp_template', 'jp_template.id = jp_domain.type_template'] // ✅ JOIN với jp_template
             ]
         ];
-        
+
         // ✅ **Truy vấn danh sách thành viên với các cột cần thiết**
         $data["domain"] = $db->getList($conditions, $options);
         $data["pagination"] = $this->renderPagination($db->countRows($conditions));
 
         return $this->getLayout($data);
     }
-    
-    public function edit() {
+
+    public function edit()
+    {
         $db = new DBHandler($this->table);
         $view = new ViewHelper();
         $params = $this->getParams();
@@ -122,5 +125,4 @@ class WebsiteManagementController extends ViewHelper{
             'templates' => $templates
         ]);
     }
-
 }

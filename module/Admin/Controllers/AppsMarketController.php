@@ -34,14 +34,14 @@ class AppsMarketController extends ViewHelper
         }
 
         // ✅ **Tùy chọn sắp xếp**
-        $pages = $params["page"] ?? 1;
-        $limit = 10; // Số lượng domain trên mỗi trang
-        $offset = ((int)$pages - 1) * $limit;
+        // $pages = $params["page"] ?? 1;
+        // $limit = 10; // Số lượng domain trên mỗi trang
+        // $offset = ((int)$pages - 1) * $limit;
 
         $options = [
-            'order_by' => ["showview desc"],
-            'limit' => $limit,
-            'offset' => $offset,
+            'order_by' => ["id asc"],
+            // 'limit' => $limit,
+            // 'offset' => $offset,
             'columns' => 'id, name, app_permission_name, price, range_date, type, showview, description, images, url',
         ];
         // ✅ **Truy vấn danh sách domain**
@@ -185,20 +185,19 @@ class AppsMarketController extends ViewHelper
             exit();
         }
 
-        $memberId = (int) $input['id'];
+        $objId = (int) $input['id'];
         $newStatus = (int) $input['showview'];
 
-
         // Kiểm tra user tồn tại
-        $member = $db->getOne(['id' => $memberId]);
-        if (!$member) {
+        $obj = $db->getOne(['id' => $objId]);
+        if (!$obj) {
             http_response_code(404); // Not Found
             echo json_encode(['success' => false, 'message' => 'Người dùng không tồn tại']);
             exit();
         }
 
         // Cập nhật trạng thái `showview`
-        $updateStatus = $db->update(['showview' => $newStatus], ['id' => $memberId]);
+        $updateStatus = $db->update(['showview' => $newStatus], ['id' => $objId]);
 
         if ($updateStatus) {
             echo json_encode(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);

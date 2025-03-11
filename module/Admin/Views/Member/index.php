@@ -19,67 +19,18 @@
     </div>
     <!-- <a href="/admin/member/add" class="btn btn-success">Thêm mới</a> -->
 </div>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>#ID</th>
-                <th>Avatar</th>
-                <th>Họ tên</th>
-                <th>Email</th>
-                <th>Điện thoại</th>
-                <th>Ngày tạo</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($member)): ?>
-                <?php foreach ($member as $user): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($user['id'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td>
-                            <?php if (!empty($user['image'])): ?>
-                                <img src="<?= $this->getImageUrl($user['image']) ?>" alt="Avatar" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
-                            <?php else: ?>
-                                <img src="<?= URL_ASSETS ?>/images/default.jpg" alt="Default Avatar" class="rounded-circle" width="40" height="40">
-                            <?php endif; ?>
-                        </td>
-                        <td><a href="/admin/member/edit/id/<?= $user['id'] ?>"><?= htmlspecialchars($user['fullname'] ?? '', ENT_QUOTES, 'UTF-8') ?></a></td>
-                        <td><?= htmlspecialchars($user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($user['mobile'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($user['updated'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td>
-                            <!-- Form-switch trạng thái ẩn/hiện -->
-                            <div class="form-check form-switch">
-                                <input class="form-check-input toggle-status" type="checkbox"
-                                    id="switch_<?= $user['id'] ?>"
-                                    data-id="<?= $user['id'] ?>"
-                                    <?= !empty($user['showview']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="switch_<?= $user['id'] ?>">
-                                </label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="/admin/member/change_password/id/<?= $user['id'] ?>" class="btn btn-sm btn-success me-1">Đổi password</a>
-                                <a href="/admin/member/edit/id/<?= $user['id'] ?>" class="btn btn-sm btn-primary me-1">Sửa</a>
-                                <!-- <button type="button" class="btn btn-sm btn-danger delete-user" data-id="<?= $user['id'] ?>">Xóa</button> -->
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="8" class="text-center">Không có dữ liệu</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+<div class="container-fluid px-0">
+    <!-- AG data table -->
+    <div class="box-table dragon"
+        style="width: auto; height: 100%; overflow-x: auto; cursor: grab; cursor : -o-grab; cursor : -moz-grab; cursor : -webkit-grab;">
+        <?php include('components/table.phtml') ?>
+    </div>
+    <!--End AG data table -->
 </div>
 
 <!-- Phân trang -->
-<?php echo $pagination; ?>
+<?php //echo $pagination; 
+?>
 
 <!-- JavaScript cho chức năng xóa -->
 <script>

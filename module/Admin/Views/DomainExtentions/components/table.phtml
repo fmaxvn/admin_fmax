@@ -1,0 +1,123 @@
+<div id="myGrid" style="height:calc(100vh - 270px);" class="ag-theme-alpine mb-3"></div>
+<script src="<?php echo URL_ASSETS ?>/js/ag-grid-enterprise.js"></script>
+<script>
+    let gridApi;
+    const gridOptions = {
+        columnDefs: [{
+                field: 'id',
+                headerName: 'STT',
+                minWidth: 50,
+                maxWidth: 100,
+                filter: false,
+                cellRenderer: (params) => params.node.rowIndex + 1
+            },
+            {
+                field: 'name',
+                headerName: 'Tên domain mở rộng',
+                minWidth: 300,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+                cellRenderer: (params) =>
+                    `<a class="text-decoration-none text-dark" href="/admin/domain-extentions/edit/id/${params.data.id}">${params.value}</a>`
+            },
+            {
+                field: 'price',
+                headerName: 'Giá',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'price_km',
+                headerName: 'Giá khuyến mãi',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'percent',
+                headerName: 'Phần trăm giảm',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'priority',
+                headerName: 'Ưu tiên',
+                minWidth: 110,
+                filter: false,
+                cellClass: 'd-flex align-items-center justify-content-center',
+                cellRenderer: (params) => {
+                    const isChecked = params.value == 1 ? 'checked' : '';
+                    return `
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" style="cursor: pointer; box-shadow: none;" type="checkbox" role="switch" 
+                                id="switch-${params.data.id}" ${isChecked} onclick="toggleShowView(${params.data.id}, this)">
+                            </div>
+                        `;
+                }
+            },
+            {
+                field: '',
+                headerName: 'Hành động',
+                filter: false,
+                cellClass: 'd-flex align-items-center justify-content-center',
+                minWidth: 200,
+                cellRenderer: (params) => {
+                    return `<a class="text-decoration-none text-dark" href="/admin/domain-extentions/edit/id/${params.data.id}"><i class="ph-bold ph-pen fs-5"></i></a>`;
+                }
+
+            },
+        ],
+        defaultColDef: {
+            flex: 1,
+            filter: true,
+            floatingFilter: true,
+            sortable: true,
+            resizable: true
+        },
+        paginationPageSize: 20,
+        pagination: true,
+        rowData: <?php echo json_encode($domainEx) ?>,
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var gridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(gridDiv, gridOptions);
+    });
+
+
+    function toggleShowView(id, element) {
+        const newStatus = element.checked ? 1 : 0;
+        const confirmMessage = newStatus ? "Bạn có chắc chắn muốn hiển thị tiện ích này?" : "Bạn có chắc chắn muốn ẩn tiện ích này?";
+
+        // ✅ Hiển thị hộp thoại xác nhận trước khi gửi request
+        if (!confirm(confirmMessage)) {
+            element.checked = !element.checked; // Hoàn tác nếu chọn "Hủy"
+            return;
+        }
+
+        fetch("/admin/apps-market/toggleStatus", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: id,
+                    showview: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert("Có lỗi xảy ra khi cập nhật trạng thái.");
+                    element.checked = !element.checked; // Hoàn tác nếu lỗi
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                alert("Có lỗi xảy ra.");
+                element.checked = !element.checked; // Hoàn tác nếu lỗi
+            });
+    }
+</script>

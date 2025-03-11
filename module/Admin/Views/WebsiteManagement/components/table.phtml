@@ -1,0 +1,72 @@
+<div id="myGrid" style="height:calc(100vh - 270px);" class="ag-theme-alpine mb-3"></div>
+<script src="<?php echo URL_ASSETS ?>/js/ag-grid-enterprise.js"></script>
+<script>
+    let gridApi;
+    const gridOptions = {
+        columnDefs: [{
+                field: 'id',
+                headerName: 'STT',
+                minWidth: 50,
+                maxWidth: 100,
+                filter: false,
+                cellRenderer: (params) => params.node.rowIndex + 1
+            },
+            {
+                field: 'domain',
+                headerName: 'Tên domain',
+                minWidth: 300,
+                filter: 'agTextColumnFilter',
+                cellClass: 'd-flex align-items-center',
+                cellRenderer: (params) =>
+                    `<a class="text-decoration-none text-dark" href="/admin/domain-extentions/edit/id/${params.data.id}">${params.value}</a>`
+            },
+            {
+                field: 'database_name',
+                headerName: 'Database Name',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'template_name',
+                headerName: 'Tên Template',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: 'folder',
+                headerName: 'Folder',
+                minWidth: 200,
+                filter: 'agNumberColumnFilter',
+                cellClass: 'd-flex align-items-center',
+            },
+            {
+                field: '',
+                headerName: 'Hành động',
+                filter: false,
+                cellClass: 'd-flex align-items-center justify-content-center',
+                minWidth: 200,
+                cellRenderer: (params) => {
+                    return `<a class="text-decoration-none text-dark" href="/admin/website-management//edit/id/${params.data.id}"><i class="ph-bold ph-pen fs-5"></i></a>`;
+                }
+
+            },
+        ],
+        defaultColDef: {
+            flex: 1,
+            filter: true,
+            floatingFilter: true,
+            sortable: true,
+            resizable: true
+        },
+        paginationPageSize: 20,
+        pagination: true,
+        rowData: <?php echo json_encode($domain) ?>,
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var gridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(gridDiv, gridOptions);
+    });
+</script>

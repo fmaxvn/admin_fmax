@@ -45,18 +45,24 @@ class MemberController extends ViewHelper
         if (!empty($params["page"])) {
             $pages = $params["page"];
         }
-        $limit = 10; // Số lượng người dùng trên mỗi trang
-        $offset = ((int)$pages - 1) * $limit;
+        // $limit = 10; // Số lượng người dùng trên mỗi trang
+        // $offset = ((int)$pages - 1) * $limit;
 
         $options = [
             'order_by' => ["datecreate $sort"],
-            'limit' => $limit,
-            'offset' => $offset,
+            // 'limit' => $limit,
+            // 'offset' => $offset,
             'columns' => 'id, fullname, username, email, mobile, showview, image',
         ];
         // ✅ **Truy vấn danh sách thành viên với các cột cần thiết**
         $data["member"] = $db->getList($conditions, $options);
-
+        foreach ($data["member"] as $key => $val) {
+            if (!empty($val['image'])) {
+                $data["member"][$key]['image'] = $this->getImageUrl($val['image']);
+            } else {
+                $data["member"][$key]['image'] = URL_ASSETS . '/images/default.jpg';
+            }
+        }
 
         $data["pagination"] = $this->renderPagination($db->countRows($conditions));
         //         $view->is_ajax = true;

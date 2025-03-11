@@ -99,6 +99,14 @@
         ul li a:hover {
             background: #ddd;
         }
+
+        .ag-opacity-zero {
+            display: none !important;
+        }
+
+        .ag-header-cell-text {
+            margin: auto;
+        }
     </style>
 </head>
 

@@ -6,8 +6,8 @@
 </style>
 <h2>Danh sách tài khoản</h2>
 
-<div class="d-flex justify-content-between mb-4">
-    <div>
+<div class="d-flex justify-content-end mb-4">
+    <!-- <div>
         <form method="GET" action="/admin/domain-extentions/index" class="d-flex">
             <input type="text" class="form-control me-2" placeholder="Tìm kiếm..." name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
             <select name="filter" class="form-select me-2" style="width: 150px;">
@@ -17,63 +17,21 @@
             </select>
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
-    </div>
-    <a href="/admin/domain-extentions/add" class="btn btn-success">Thêm mới</a>
+    </div> -->
+    <a href="/admin/domain-extentions/add" class="btn btn-success ">Thêm mới</a>
 </div>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>Tên domain mở rộng</th>
-                <th>Giá bán</th>
-                <th>Giá khuyến mãi</th>
-                <th>Phần trăm giảm</th>
-                <th>Ưu tiên</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($domainEx)): ?>
-                <?php $counter = 1; // Biến đếm ID tự động 
-                ?>
-                <?php foreach ($domainEx as $val): ?>
-                    <tr>
-                        <td><?= $counter++ ?></td>
-                        <td><a href="/admin/domain-extentions/edit/id/<?= $val['id'] ?>"><?= htmlspecialchars($val['name'] ?? '', ENT_QUOTES, 'UTF-8') ?></a> </td>
-                        <td><?= htmlspecialchars($val['price'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($val['price_km'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($val['percent'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td>
-                            <!-- Form-switch trạng thái ẩn/hiện -->
-                            <div class="form-check form-switch">
-                                <input class="form-check-input toggle-priority" type="checkbox"
-                                    id="switch_<?= $val['id'] ?>"
-                                    data-id="<?= $val['id'] ?>"
-                                    <?= !empty($val['priority']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="switch_<?= $val['id'] ?>">
-                                </label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="/admin/domain-extentions/edit/id/<?= $val['id'] ?>" class="btn btn-sm btn-warning">Xem chi tiết</a>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="8" class="text-center">Không có dữ liệu</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-
+<div class="container-fluid px-0">
+    <!-- AG data table -->
+    <div class="box-table dragon"
+        style="width: auto; height: 100%; overflow-x: auto; cursor: grab; cursor : -o-grab; cursor : -moz-grab; cursor : -webkit-grab;">
+        <?php include('components/table.phtml') ?>
+    </div>
+    <!--End AG data table -->
 </div>
 
 <!-- Phân trang -->
-<?php echo $pagination; ?>
+<?php //echo $pagination; 
+?>
 
 
 <!-- JavaScript cho chức năng xóa -->

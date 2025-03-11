@@ -33,14 +33,14 @@ class DomainExtentionsController extends ViewHelper
         }
 
         // ✅ **Tùy chọn sắp xếp**
-        $pages = $params["page"] ?? 1;
-        $limit = 10; // Số lượng domain trên mỗi trang
-        $offset = ((int)$pages - 1) * $limit;
+        // $pages = $params["page"] ?? 1;
+        // $limit = 10; // Số lượng domain trên mỗi trang
+        // $offset = ((int)$pages - 1) * $limit;
 
         $options = [
             'order_by' => ["priority desc, id asc"],
-            'limit' => $limit,
-            'offset' => $offset,
+            // 'limit' => $limit,
+            // 'offset' => $offset,
             'columns' => 'id, name, type, price, price_km, percent,priority',
         ];
         // ✅ **Truy vấn danh sách domain**
