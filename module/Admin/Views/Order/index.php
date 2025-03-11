@@ -25,9 +25,8 @@
             <tr>
                 <th>STT</th>
                 <th>Mã đơn hàng</th>
-                <th>Họ tên</th>
-                <th>Điện thoại</th>
-                <th>Địa chỉ</th>
+                <th>Tên website thanh toán</th>
+                <th>Tên user thanh toán</th>
                 <th>Trạng thái</th>
                 <th>Tổng tiền</th>
                 <th>Hành động</th>
@@ -41,9 +40,8 @@
                     <tr>
                         <td><?= $counter++ ?></td>
                         <td><a href="/admin/order/edit/id/<?= $cart['id'] ?>"><?= htmlspecialchars($cart['code'] ?? '', ENT_QUOTES, 'UTF-8') ?></a> </td>
-                        <td><?= htmlspecialchars($cart['name'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($cart['mobile'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($cart['address'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($cart['domain'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($cart['username'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <span class="badge <?= ($cart['id_status'] == 2) ? 'bg-success' : 'bg-warning' ?>">
                                 <?= htmlspecialchars($cart['status'] ?? 'Không xác định', ENT_QUOTES, 'UTF-8') ?>

@@ -13,13 +13,14 @@ class OrderController extends ViewHelper
     private $tableCartDetail = "jp_cart_detail_global";
     private $tableStatus = "jp_cart_status_global";
     private $tableDomain = "jp_domain";
+    private $tableMember = "jp_member";
 
     public function index()
     {
 
         $db = new DBHandler($this->table);
         $dbStatus = new DBHandler($this->tableStatus);
-
+        $dbDomain = new DBHandler($this->tableDomain);
         // ✅ **Lấy tham số từ URL**
         $search = $_GET['search'] ?? ''; // Tìm kiếm theo tên
         $sort = $_GET['sort'] ?? 'desc'; // Sắp xếp (asc/desc)
@@ -46,12 +47,15 @@ class OrderController extends ViewHelper
             'order_by' => ["id $sort"],
             'limit' => $limit,
             'offset' => $offset,
-            'columns' => 'id, code, name, mobile, address, id_status, total_price',
+            'columns' => 'jp_cart_global.*, jp_domain.domain AS domain, jp_member.username AS username', // Định danh id cụ thể
+            'joins' => [
+                ['LEFT JOIN', 'jp_domain', 'jp_domain.id = jp_cart_global.id_domain'], // JOIN bảng jp_domain
+                ['LEFT JOIN', 'jp_member', 'jp_member.id = jp_cart_global.id_member'] // JOIN bảng jp_member
+            ]
         ];
 
         // ✅ **Truy vấn danh sách thành viên với các cột cần thiết**
         $data["cartGlobal"] = $db->getList($conditions, $options);
-
 
         // ✅ **Lấy danh sách trạng thái từ jp_cart_status_global**
         $cartStatusList = $dbStatus->getList([], [
@@ -78,41 +82,55 @@ class OrderController extends ViewHelper
         $dbCartDetail = new DBHandler($this->tableCartDetail);
         $dbStatus = new DBHandler($this->tableStatus);
         $dbDomain = new DBHandler($this->tableDomain);
+        $dbMember = new DBHandler($this->tableMember);
         $view = new ViewHelper();
         $params = $this->getParams();
         $cartId = $params['id'];
-        // ✅ **Truy vấn danh sách thành viên với các cột cần thiết**
+
+        // ✅ Lấy thông tin giỏ hàng
         $cartGlobal = $db->getOne(['id' => $cartId]);
 
-        $data['infoDomain'] = $dbDomain->getOne(['id' => $cartGlobal['id_domain']]);
-        // Lấy thông tin list đơn hàng chi tiết từ database
-        $listCartDetail = $dbCartDetail->getList(['id_cart_global' => $cartId], [
-            'columns' => 'id, id_cart_global, name, qty, price, last_payment_date, next_renewal_date, id_payment'
-        ]);
-
-        // ✅ **Lấy danh sách trạng thái từ jp_cart_status_global**
-        $cartStatusList = $dbStatus->getList([], [
-            'columns' => 'id, name'
-        ]);
         if (!$cartGlobal) {
             return $view->getLayout(['error' => "Đơn hàng không tồn tại"]);
         }
+
+        // // ✅ Lấy danh sách domain liên quan
+        $data['infoDomain'] = $dbDomain->getOne(['id' => $cartGlobal['id_domain']]);
+        $data['infoMember'] = $dbMember->getOne(['id' => $cartGlobal['id_member']]);
+
+        // ✅ Lấy danh sách chi tiết đơn hàng
+        $data['listCartDetail'] = $dbCartDetail->getList(['id_cart_global' => $cartId], [
+            'columns' => 'id, id_cart_global, name, qty, price, last_payment_date, next_renewal_date, id_payment'
+        ]);
+
+        // ✅ Lấy danh sách trạng thái từ `jp_cart_status_global`
+        $data['cartStatusList'] = $dbStatus->getList([], [
+            'columns' => 'id, name'
+        ]);
+
+        // ✅ Gán giỏ hàng vào `$data`
+        $data['cartGlobal'] = $cartGlobal;
+
         // ✅ Nếu form được submit (POST request)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $validator = new Validator();
-            $validator->validate($_POST, [
-                'mobile' => ['nullable', 'regex:/^[0-9]{10,11}$/'],
+            $validationRules = [
                 'id_status' => ['required', 'in:0,1,2'],
-            ]);
+            ];
+            // ✅ Kiểm tra nếu có `mobile` thì mới thêm rule
+            if (!empty($_POST['mobile'])) {
+                $validationRules['mobile'] = ['nullable', 'regex:/^[0-9]{10,11}$/'];
+            }
+            $validator->validate($_POST, $validationRules);
 
             // Kiểm tra nếu có lỗi
             if ($validator->fails()) {
                 $data['errors'] = $validator->errors(); // ✅ Truyền danh sách lỗi ra view
                 $data['old'] = $_POST; // ✅ Giữ lại dữ liệu đã nhập
-                return $view->getLayout(array_merge(['cartGlobal' => $cartGlobal], $data));
+                return $view->getLayout($data);
             }
 
-            // Lấy toàn bộ dữ liệu từ form
+            // ✅ Lấy dữ liệu từ form để cập nhật
             $fields = [
                 'name',
                 'mobile',
@@ -121,11 +139,10 @@ class OrderController extends ViewHelper
                 'email',
                 'next_renewal_date',
                 'tax_number',
-                'total_price',
+                'total_price'
             ];
 
             $updateData = [];
-
             foreach ($fields as $field) {
                 if (isset($_POST[$field])) {
                     $updateData[$field] = $_POST[$field];
@@ -136,26 +153,15 @@ class OrderController extends ViewHelper
             if (!empty($updateData)) {
                 $success = $db->update($updateData, ['id' => $cartId]);
                 if ($success) {
-                    $cartGlobal = array_merge($cartGlobal, $updateData); // Cập nhật dữ liệu mới vào biến cartGlobal
-                    return $view->getLayout([
-                        'cartGlobal' => $cartGlobal,
-                        'cartStatusList' => $cartStatusList,
-                        'listCartDetail' => $listCartDetail,
-                        'success' => "Cập nhật giỏ hàng thành công"
-                    ]);
+                    $data['cartGlobal'] = array_merge($cartGlobal, $updateData); // ✅ Cập nhật lại dữ liệu mới
+                    $data['success'] = "Cập nhật giỏ hàng thành công";
+                } else {
+                    $data['error'] = "Không có dữ liệu nào được cập nhật";
                 }
             }
-
-            return $view->getLayout([
-                'cartGlobal' => $cartGlobal,
-                'error' => "Không có dữ liệu nào được cập nhật"
-            ]);
         }
 
-        $data['cartGlobal'] = $cartGlobal;
-        $data['listCartDetail'] = $listCartDetail;
-        $data['cartStatusList'] = $cartStatusList;
-        // ✅ Nếu chỉ là GET request, hiển thị form chỉnh sửa
+        // ✅ Trả về View với đầy đủ `$data`
         return $view->getLayout($data);
     }
 }

@@ -44,27 +44,20 @@
 
     <!-- ✅ FORM CHỈNH SỬA ĐƠN HÀNG -->
     <form action="" method="post">
-        <!-- ID đơn hàng (Ẩn) -->
-        <!-- <input type="hidden" name="id" value="<?= htmlspecialchars($cartGlobal['id'] ?? '') ?>"> -->
         <div class="d-flex justify-content-end mt-4">
             <button type="submit" class="btn btn-save" style="width: max-content;">Lưu thay đổi</button>
         </div>
 
         <div class="row">
             <h6 class="fw-bold">Thông tin website</h6>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form-group">
-                    <label for="code">Tên domain</label>
+                    <label for="code">Tên domain thanh toán</label>
                     <input type="text" class="form-control" value="<?= $infoDomain['domain'] ?>" disabled>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="total_price">Tên database</label>
-                    <input type="text" class="form-control" value="<?= $infoDomain['database_name'] ?>" disabled>
-                </div>
-            </div>
-            <div class="col-md-4">
+
+            <div class="col-md-3">
                 <div class="form-group">
                     <label for="id_status">Trạng thái Public</label>
                     <select class="form-select" id="id_status" name="id_status" disabled>
@@ -76,7 +69,31 @@
                     <?php endif; ?>
                 </div>
             </div>
-
+            <div class="col-6"></div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="code">Tên tài khoản thanh toán</label>
+                    <input type="text" class="form-control" value="<?= $infoMember['username'] ?>" disabled>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="code">Tên khách hàng thanh toán</label>
+                    <input type="text" class="form-control" value="<?= $infoMember['fullname'] ?>" disabled>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="code">Email</label>
+                    <input type="text" class="form-control" value="<?= $infoMember['email'] ?>" disabled>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="code">Phone</label>
+                    <input type="text" class="form-control" value="<?= $infoMember['mobile'] ?>" disabled>
+                </div>
+            </div>
 
             <hr>
             <!-- Hàng 1 -->
@@ -108,18 +125,21 @@
                 </div>
             </div>
             <hr>
-
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold">Thông tin xuất hóa đơn</h6>
+                <button type="button" class="btn btn-save btn__invoice" style="width: max-content;">Chỉnh sửa</button>
+            </div>
             <!-- Hàng 2 -->
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="name">Tên khách hàng</label>
-                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($cartGlobal['name'] ?? '') ?>">
+                    <input type="text" class="form-control info__invoice" id="name" name="name" value="<?= htmlspecialchars($cartGlobal['name'] ?? '') ?>" disabled>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="mobile">Số điện thoại</label>
-                    <input type="number" class="form-control" id="mobile" name="mobile" value="<?= htmlspecialchars($cartGlobal['mobile'] ?? '') ?>">
+                    <input type="number" class="form-control info__invoice" id="mobile" name="mobile" value="<?= htmlspecialchars($cartGlobal['mobile'] ?? '') ?>" disabled>
                     <?php if (!empty($errors['mobile'])): ?>
                         <small class="error text-danger"><?= htmlspecialchars(implode(', ', $errors['mobile'])) ?></small>
                     <?php endif; ?>
@@ -128,13 +148,13 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="address">Địa chỉ</label>
-                    <input type="text" class="form-control" id="address" name="address" value="<?= htmlspecialchars($cartGlobal['address'] ?? '') ?>">
+                    <input type="text" class="form-control info__invoice" id="address" name="address" value="<?= htmlspecialchars($cartGlobal['address'] ?? '') ?>" disabled>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="tax_number">Mã số thuế</label>
-                    <input type="text" class="form-control" id="tax_number" name="tax_number" value="<?= htmlspecialchars($cartGlobal['tax_number'] ?? '') ?>">
+                    <input type="text" class="form-control info__invoice" id="tax_number" name="tax_number" value="<?= htmlspecialchars($cartGlobal['tax_number'] ?? '') ?>" disabled>
                 </div>
             </div>
 
@@ -179,3 +199,16 @@
         </tbody>
     </table>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const editButton = document.querySelector(".btn__invoice"); // Nút chỉnh sửa
+        const invoiceInputs = document.querySelectorAll(".info__invoice"); // Chỉ lấy input có class 'invoice-input'
+
+        editButton.addEventListener("click", function(event) {
+            event.preventDefault(); // Ngăn chặn form submit nếu cần
+            invoiceInputs.forEach(input => {
+                input.removeAttribute("disabled"); // Bỏ disabled cho các input liên quan
+            });
+        });
+    });
+</script>
