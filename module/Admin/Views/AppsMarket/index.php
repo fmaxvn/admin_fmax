@@ -23,6 +23,7 @@
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
     </div>
+    <a href="/admin/apps-market/add" class="btn btn-success">Thêm mới</a>
 </div>
 <div class="table-responsive">
     <table class="table table-striped table-hover">

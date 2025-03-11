@@ -47,6 +47,7 @@
 
     <form action="" method="post">
         <div class="d-flex justify-content-end mt-4">
+            <button type="button" class="btn btn-danger me-3" style="width: max-content;" onclick="confirmAndDelete(<?php echo $appsMarketDetail['id']; ?>)">Xóa</button>
             <button type="submit" class="btn btn-save" style="width: max-content;">Lưu thay đổi</button>
         </div>
 
@@ -102,36 +103,33 @@
     </form>
 </div>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        function toggleInputs() {
-            const percentRadio = document.getElementById('percent1');
-            const priceRadio = document.getElementById('priceKM2');
-
-            const percentInput = document.getElementById('percent_input');
-            const priceInput = document.getElementById('price_km_input');
-
-            if (percentRadio.checked) {
-                percentInput.disabled = false;
-                priceInput.disabled = true;
-            } else if (priceRadio.checked) {
-                percentInput.disabled = true;
-                priceInput.disabled = false;
-            }
+    function confirmAndDelete(id) {
+        // Hiển thị hộp thoại xác nhận
+        if (!confirm("Bạn có chắc chắn muốn xóa mục này không?")) {
+            return; // Nếu hủy, thoát khỏi hàm
         }
 
-        // Gán sự kiện khi thay đổi radio
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', toggleInputs);
-        });
+        // Tạo FormData để gửi request
+        const formData = new FormData();
+        formData.append('id', id);
 
-        // Thiết lập trạng thái ban đầu
-        toggleInputs();
-
-        let priorityCheckbox = document.getElementById("priority");
-
-        // Khi checkbox thay đổi trạng thái
-        priorityCheckbox.addEventListener("change", function() {
-            this.value = this.checked ? 1 : 0;
-        });
-    });
+        // Gửi request xóa bằng Fetch API
+        fetch('/admin/apps-market/delete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message || "Xóa thành công!");
+                    location.href = '/admin/apps-market/index';
+                } else {
+                    alert(data.message || "Có lỗi xảy ra khi xóa!");
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert("Đã xảy ra lỗi khi gửi yêu cầu xóa!");
+            });
+    }
 </script>

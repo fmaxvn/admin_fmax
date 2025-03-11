@@ -3,6 +3,7 @@
 namespace module\Admin\Controllers;
 
 use Core\Database\DBHandler; // ✅ Load module database
+use Core\Helper\Slug;
 use Core\Helper\Validator;
 use Core\Helper\ViewHelper;
 
@@ -38,7 +39,7 @@ class AppsMarketController extends ViewHelper
         $offset = ((int)$pages - 1) * $limit;
 
         $options = [
-            'order_by' => ["type asc, id asc"],
+            'order_by' => ["showview desc"],
             'limit' => $limit,
             'offset' => $offset,
             'columns' => 'id, name, app_permission_name, price, range_date, type, showview, description, images, url',
@@ -51,7 +52,45 @@ class AppsMarketController extends ViewHelper
         return $this->getLayout($data);
     }
 
+    /**
+     * Hàm thêm mới
+     * @return string
+     */
+    public function add()
+    {
+        $view = new ViewHelper();
+        $data = [];
 
+        // Xử lý form submit
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $db = new DBHandler($this->table);
+            // Validate dữ liệu
+            $validator = new Validator();
+            $validator->validate($_POST, [
+                'name' => ['required'],
+                'price' => ['required', 'numeric'],
+                'type' => ['required', 'in:0,1,2'],
+                'description' => ['required'],
+            ]);
+
+            if ($validator->fails()) {
+                $data['errors'] = $validator->errors();
+                $data['old'] = $_POST; // Giữ lại dữ liệu đã nhập
+                return $view->getLayout($data);
+            }
+
+            $_POST['range_date'] = 12;
+            // Insert trực tiếp dữ liệu POST vào database
+            if ($db->insert($_POST)) {
+                $data['success'] = "Thêm mới domain thành công.";
+            } else {
+                $data['error'] = "Có lỗi xảy ra khi thêm mới. Vui lòng thử lại.";
+                $data['old'] = $_POST; // Giữ lại dữ liệu đã nhập
+            }
+        }
+
+        return $view->getLayout($data);
+    }
 
     public function edit()
     {
@@ -169,5 +208,55 @@ class AppsMarketController extends ViewHelper
         }
 
         exit();
+    }
+
+    /**
+     * Hàm convert slug
+     * @return never
+     */
+    public function convertSlug()
+    {
+        header('Content-Type: application/json'); // Đảm bảo trả về JSON
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); // Method Not Allowed
+            echo json_encode(['status' => 'error', 'message' => 'Phương thức không hợp lệ']);
+            exit();
+        }
+
+        if (empty($_POST['name_convert'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Dữ liệu không hợp lệ']);
+            exit();
+        }
+
+        $slug = Slug::createSlug($_POST['name_convert']);
+
+        echo json_encode(['status' => 'success', 'slug' => $slug]);
+        exit();
+    }
+
+    /**
+     * Hàm Xóa
+     */
+    public function delete()
+    {
+        // Chỉ chấp nhận POST request để tránh CSRF
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('HTTP/1.1 403 Forbidden');
+            echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+            exit;
+        }
+        $objId = $_POST['id'] ?? '';
+        $db = new DBHandler($this->table);
+
+        // Lấy thông tin user để xóa avatar nếu có
+        $objDetail = $db->getOne(['id' => $objId]);
+
+        if ($objDetail && $db->delete(['id' => $objId])) {
+            echo json_encode(['status' => 'success', 'message' => 'Xóa user thành công.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi xóa.']);
+        }
+        exit;
     }
 }

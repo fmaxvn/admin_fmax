@@ -217,7 +217,7 @@ class DomainExtentionsController extends ViewHelper
     }
 
     /**
-     * Xóa domain
+     * Hàm Xóa
      */
     public function delete()
     {
@@ -227,13 +227,13 @@ class DomainExtentionsController extends ViewHelper
             echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
             exit;
         }
-        $domainId = $_POST['id'] ?? '';
+        $objId = $_POST['id'] ?? '';
         $db = new DBHandler($this->table);
 
         // Lấy thông tin user để xóa avatar nếu có
-        $domainEx = $db->getOne(['id' => $domainId]);
+        $objDetail = $db->getOne(['id' => $objId]);
 
-        if ($domainEx && $db->delete(['id' => $domainId])) {
+        if ($objDetail && $db->delete(['id' => $objId])) {
             echo json_encode(['status' => 'success', 'message' => 'Xóa user thành công.']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi xóa.']);
