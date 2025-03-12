@@ -127,6 +127,16 @@
 
         <li class="has-submenu">
             <a href="#" class="d-flex justify-content-between align-items-center">
+                <span><i class="me-2 ph-bold ph-browsers"></i> Quản lý template</span> <span class="arrow">▼</span>
+            </a>
+            <ul class="submenu">
+                <li><a href="<?= BASE_URL ?>/admin/template/category"><i class="me-2 ph-bold ph-browser"></i> Danh mục template</a></li>
+                <li><a href="<?= BASE_URL ?>/admin/template/index"><i class="me-2 ph-bold ph-cards-three"></i> Danh sách template</a></li>
+            </ul>
+        </li>
+
+        <li class="has-submenu">
+            <a href="#" class="d-flex justify-content-between align-items-center">
                 <span><i class="me-2 ph-bold ph-package"></i> Quản lý Đơn hàng & Thanh toán</span> <span class="arrow">▼</span>
             </a>
             <ul class="submenu">
