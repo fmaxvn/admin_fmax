@@ -19,11 +19,6 @@
             <input type="text" class="form-control" name="domain" value="<?= $domain['domain'] ?? ''; ?>" required>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Database Name</label>
-            <input type="text" class="form-control" name="database_name" value="<?= $domain['database_name'] ?? ''; ?>" required>
-        </div>
-
         <!-- ✅ Dropdown cho Type Template -->
         <div class="mb-3">
             <label class="form-label">Type Template</label>

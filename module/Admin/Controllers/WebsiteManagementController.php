@@ -80,7 +80,7 @@ class WebsiteManagementController extends ViewHelper
         // ✅ Nếu form được submit (tức là phương thức POST)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Danh sách cột cần cập nhật
-            $fields = ['domain', 'database_name', 'type_template', 'folder'];
+            $fields = ['domain', 'type_template', 'folder'];
 
             $updateData = [];
 
